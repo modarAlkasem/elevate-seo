@@ -1,0 +1,9 @@
+venv
+.env
+__pycache__
+*.pyc
+data
+celerybeat-scedule
+db.sqlite3
+media
+staticfiles

@@ -1,0 +1,32 @@
+# Core
+Django~=5.2.7
+djangorestframework~=3.16.1
+djangorestframework-simplejwt~=5.5.1
+django-cors-headers~=4.9.0
+python-decouple==3.8
+cryptography~=46.0.1
+python-jose~=3.5.0
+
+
+# Database
+psycopg2-binary~=2.9.11
+
+# Real Time
+channels~=4.3.1
+channels-rabbitmq~=4.0.1
+
+
+# Background Tasks
+celery~=5.5.3
+
+# AI
+langchain~=1.0.2
+langchain-google-genai~=3.0.0
+
+
+# Utilities
+requests~=2.32.5
+pytz==2025.2
+
+# Production
+daphne~=4.2.1
