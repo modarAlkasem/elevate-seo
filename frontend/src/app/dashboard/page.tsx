@@ -10,11 +10,13 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { CountrySelector } from "@/components/country-selector";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Sparkles, Plus } from "lucide-react";
 
 const DashboardPage = () => {
   const [prompt, setPrompt] = useState("");
+  const [country, setCountry] = useState("US");
   const [isLoading, setIsLoading] = useState(false);
   const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -64,11 +66,11 @@ const DashboardPage = () => {
                     />
                   </div>
 
-                  {/* <CountrySelector
+                  <CountrySelector
                     value={country}
                     onValueChange={setCountry}
                     disabled={isLoading}
-                  /> */}
+                  />
 
                   <div>
                     <Button
