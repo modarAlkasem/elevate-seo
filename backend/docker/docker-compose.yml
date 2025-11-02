@@ -1,0 +1,114 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:18.0-alpine
+    container_name: elevateseo_db
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - ../data/postgres_data:/var/lib/postgresql/data
+
+    env_file:
+      - "../.env"
+
+    environment:
+      - POSTGRES_DB=${DB_NAME:-elevate-seo}
+      - POSTGRES_USER=${DB_USER:-admin}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-admin}
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-admin}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # pgAdmin4
+  pgadmin:
+    image: dpage/pgadmin4:2025-10-14-1
+    container_name: elevateseo_pgadmin
+
+    ports:
+      - "5050:80"
+
+    volumes:
+      - ../data/pgadmin:/var/lib/pgadmin
+      - ../data/pgadmin:/pgadmin4/servers.json
+
+    env_file:
+      - "../.env"
+
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD:-admin}
+      - PGADMIN_CONFIG_SERVER_MODE=True
+      - PGADMIN_CONFIG_LOGIN_BANNER="ElevateSEO DB"
+      - PGADMIN_LISTEN_PORT=80
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+      - PGADMIN_CONFIG_UPGRADE_CHECK_ENABLED=False
+
+    depends_on:
+      db:
+        condition: "service_healthy"
+
+  # RabbitMQ:
+  rabbitmq:
+    image: rabbitmq:4.2.0-management-alpine
+    container_name: elevateseo_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+    volumes:
+      - ../data/rabbitmq_data:/var/lib/rabbitmq
+
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Api:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+
+    container_name: elevateseo_api
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - ../:/app
+
+    env_file:
+      - "../.env"
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+      rabbitmq:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+  # Celery Worker:
+  celery_worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: elevate_celery_worker
+    command: celery -A config worker -l info
+
+    volumes:
+      - ../:/app
+    env_file:
+      - "../.env"
+
+    depends_on:
+      - db
+      - rabbitmq
+      - api
+
+    restart: unless-stopped
