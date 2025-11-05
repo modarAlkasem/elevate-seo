@@ -135,3 +135,34 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# RabbitMQ & Channels
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [
+                (
+                    config("REDIS_HOST", default="redis"),
+                    config("REDIS_PORT", default="6379"),
+                ),
+            ]
+        },
+    }
+}
+
+
+# Celery
+CELERY_BROKER_URL = config(
+    "CELERY_BROKER_URL",
+    default=f"amqp://{config("RABBITMQ_DEFAULT_USER")}:{config("RABBITMQ_DEFAULT_USER")}@rabbitmq:5672/",
+)
+CELERY_RESULT_BACKEND = config(
+    "CELERY_BROKER_URL",
+    default="redis://redis:6379/0",
+)
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"

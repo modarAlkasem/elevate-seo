@@ -7,7 +7,7 @@ services:
       - "5432:5432"
 
     volumes:
-      - ../data/postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
 
     env_file:
       - "../.env"
@@ -32,8 +32,7 @@ services:
       - "5050:80"
 
     volumes:
-      - ../data/pgadmin:/var/lib/pgadmin
-      - ../data/pgadmin:/pgadmin4/servers.json
+      - pgadmin_data:/var/lib/pgadmin
 
     env_file:
       - "../.env"
@@ -60,10 +59,33 @@ services:
       - "15672:15672"
 
     volumes:
-      - ../data/rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq
+
+    env_file:
+      - "../.env"
+
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER:-admin}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:-admin}
 
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis:
+  redis:
+    image: redis:8.2.3
+    container_name: elevateseo_redis
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis_data:/data
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -112,3 +134,9 @@ services:
       - api
 
     restart: unless-stopped
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  rabbitmq_data:
+  redis_data:
