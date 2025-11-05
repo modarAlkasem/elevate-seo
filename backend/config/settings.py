@@ -10,9 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+# Python Imports
 from pathlib import Path
 import sys
 import os
+from datetime import datetime, timedelta
+
+# Third Party Imports
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -46,6 +50,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Third Party
+    "rest_framework",
+    "rest_framework_simplejwt.token_blacklist",
+    # Apps
+    "core",
     "authentication",
 ]
 
@@ -136,6 +145,23 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+AUTH_USER_MODEL = "authentication.User"
+
+
+# Django REST Framework
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication"
+    ]
+}
+
+# Simple JWT
+SIMPLE_JWT = {
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "TOKEN_OBTAIN_SERIALIZER": None,
+}
 
 # RabbitMQ & Channels
 CHANNEL_LAYERS = {
