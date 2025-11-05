@@ -13,11 +13,13 @@ psycopg2-binary~=2.9.11
 
 # Real Time
 channels~=4.3.1
-channels-rabbitmq~=4.0.1
+types-channels~=4.3.0.20250822
+channels-redis~=4.3.0
 
 
 # Background Tasks
 celery~=5.5.3
+redis~=7.0.1
 
 # AI
 langchain~=1.0.2
