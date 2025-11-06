@@ -150,9 +150,12 @@ AUTH_USER_MODEL = "authentication.User"
 
 # Django REST Framework
 REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": ["core.renderers.JSONRenderer"],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication"
-    ]
+    ],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
+    "UNAUTHENTICATED_USER": None,
 }
 
 # Simple JWT
