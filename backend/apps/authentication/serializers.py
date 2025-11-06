@@ -86,7 +86,7 @@ class SignUpModelSerializer(UserModelSerializer):
         pass
 
 
-class SignInModelSerializer(serializers.Serializer):
+class SignInSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
     ip_address = serializers.IPAddressField(required=False)
