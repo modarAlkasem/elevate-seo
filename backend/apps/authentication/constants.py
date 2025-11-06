@@ -10,3 +10,7 @@ class AccountTypeChoices(models.TextChoices):
 class AccountProviderChoices(models.TextChoices):
     CREDENTIALS = "CREDENTIALS"
     GOOGLE = "GOOGLE"
+
+
+class SignUpErrorCodeChoices(models.TextChoices):
+    EMAIL_ALREADY_EXISTS = "EMAIL_ALREADY_EXISTS"
