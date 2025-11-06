@@ -154,3 +154,17 @@ class SignInModelSerializer(serializers.Serializer):
                 {"non_field_error": "Email or password  is incorrect"},
                 code=SignInErrorCodeChoices.INCORRECT_EMAIL_PASSWORD.value,
             )
+
+
+class AccountModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Account
+        fields = "__all__"
+
+
+class AccountWithUserModelSerializer(AccountModelSerializer):
+    user = UserModelSerializer()
+
+    class Meta(AccountModelSerializer.Meta):
+        pass
