@@ -221,3 +221,11 @@ class SignInSocialModelSerializer(serializers.Serializer):
                     "refresh": str(refresh_token),
                 },
             }
+
+
+class SignOutSerializer(serializers.Serializer):
+    refresh_token = serializers.SlugRelatedField(
+        slug_field="token",
+        queryset=OutstandingToken.objects.all(),
+        error_messages={"does_not_exist": "Invalid token"},
+    )
