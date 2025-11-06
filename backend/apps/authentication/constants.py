@@ -24,3 +24,7 @@ class SignInErrorCodeChoices(models.TextChoices):
     INCORRECT_PASSWORD = "INCORRECT_PASSWORD"
     UNVERIFIED_EMAIL = "UNVERIFIED_EMAIL"
     ACCOUNT_DISABLED = "ACCOUNT_DISABLED"
+
+
+class OAuthProviderChoices(models.TextChoices):
+    GOOGLE = "GOOGLE"

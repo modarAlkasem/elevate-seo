@@ -195,3 +195,12 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "UTC"
+
+
+# OAuth
+OAUTH_PROVIDERS = {
+    "google": {
+        "client_id": config("GOOGLE_CLIENT_ID"),
+        "client_secret": config("GOOGLE_CLIENT_SECRET"),
+    }
+}
