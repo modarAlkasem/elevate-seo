@@ -4,7 +4,8 @@ from typing import Any, Optional
 # REST Framework Imports
 from rest_framework.renderers import JSONRenderer as DRFJSONRenderer
 
-from rest_framework.response import Response
+# App Imports
+from .responses import Response
 
 
 class JSONRenderer(DRFJSONRenderer):
