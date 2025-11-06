@@ -1,5 +1,6 @@
 # Python Imports
 from typing import Any
+import logging
 
 # Django Imports
 from django.contrib.auth.hashers import make_password, check_password
@@ -19,7 +20,10 @@ from .constants import (
     SignUpErrorCodeChoices,
     AccountProviderChoices,
     AccountTypeChoices,
+    SignInErrorCodeChoices,
 )
+
+logger = logging.Logger(__name__)
 
 
 class UserModelSerializer(serializers.ModelSerializer):
@@ -69,6 +73,84 @@ class SignUpModelSerializer(UserModelSerializer):
                 "provider_account_id": user.id,
                 "user": user,
             }
-            Account.objects.create(**account_data)
+            account = Account.objects.create(**account_data)
 
+            logger.info(
+                f"New user & account has been created successfully: User ID={user.id} Account ID={account.id}"
+            )
             return user
+
+    class Meta(UserModelSerializer.Meta):
+        pass
+
+
+class SignInModelSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()
+    ip_address = serializers.IPAddressField(required=False)
+    user_agent = serializers.CharField()
+
+    def to_internal_value(self, data: Any = None):
+
+        if isinstance(data, dict):
+            email = data.get("email")
+
+            if email:
+                data["email"] = email.strip().lower()
+
+        return super().to_internal_value(data)
+
+    def validate(self, attrs: dict):
+        try:
+            user = User.objects.get(email=attrs.get("email"))
+
+            if not user.password:
+                logger.error(
+                    f"Wrong sign in method: Email{attrs.get("email") } IP Adress:{attrs.get("ip_address",None)} User Agent:{attrs.get("user_agent")}"
+                )
+                raise serializers.ValidationError(
+                    {"non_field_error": "Invalid sign in method"},
+                    code=SignInErrorCodeChoices.USER_MISSING_PASSWORD.value,
+                )
+
+            if not check_password(attrs.get("password"), user.password):
+                raise ValueError("Invalid Password")
+
+            if not user.email_verified:
+                logger.error(
+                    f"Unverified user's sign in attempt: Email{attrs.get("email") } IP Adress:{attrs.get("ip_address",None)} User Agent:{attrs.get("user_agent")}"
+                )
+                raise serializers.ValidationError(
+                    {"email": "Unverified email"},
+                    code=SignInErrorCodeChoices.UNVERIFIED_EMAIL.value,
+                )
+
+            if not user.is_active:
+                logger.error(
+                    f"Disabled user's sign in attempt: Email{attrs.get("email") } IP Adress:{attrs.get("ip_address",None)} User Agent:{attrs.get("user_agent")}"
+                )
+                raise serializers.ValidationError(
+                    {"email": "Unverified email"},
+                    code=SignInErrorCodeChoices.ACCOUNT_DISABLED.value,
+                )
+
+            user.last_signed_in = timezone.now()
+            user.save()
+
+            refresh_token = RefreshToken.for_user(user)
+            return {
+                "user": UserModelSerializer(instance=user).data,
+                "tokens": {
+                    "access": refresh_token.access_token,
+                    "refresh": str(refresh_token),
+                },
+            }
+
+        except (User.DoesNotExist, ValueError):
+            logger.error(
+                f"Failed sign in attempt: Email{attrs.get("email") } IP Adress:{attrs.get("ip_address",None)} User Agent:{attrs.get("user_agent")}"
+            )
+            raise serializers.ValidationError(
+                {"non_field_error": "Email or password  is incorrect"},
+                code=SignInErrorCodeChoices.INCORRECT_EMAIL_PASSWORD.value,
+            )
