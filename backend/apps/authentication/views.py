@@ -6,14 +6,22 @@ from rest_framework.permissions import IsAuthenticated
 
 # Third-Party Imports
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from drf_spectacular.utils import extend_schema_view
 
 # Project Imports
 from core.responses import Response
 
 # App Imports
 from .services import AuthService
+from .openapi import AuthViewSetSchema
 
 
+@extend_schema_view(
+    sign_up=AuthViewSetSchema.sign_up(),
+    sign_in=AuthViewSetSchema.sign_in(),
+    sign_in_social=AuthViewSetSchema.sign_in_social(),
+    sign_out=AuthViewSetSchema.sign_out(),
+)
 class AuthViewSet(ViewSet):
     authentication_classes = []
     permission_classes = []

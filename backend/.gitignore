@@ -7,3 +7,4 @@ celerybeat-scedule
 db.sqlite3
 media
 staticfiles
+schema.yml
