@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 # Third-Party Imports
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from drf_spectacular.utils import extend_schema_view
+from sentry_sdk import set_tag
 
 # Project Imports
 from core.responses import Response
@@ -14,6 +15,9 @@ from core.responses import Response
 # App Imports
 from .services import AuthService
 from .openapi import AuthViewSetSchema
+
+
+set_tag("feature", "authentication")
 
 
 @extend_schema_view(

@@ -78,7 +78,8 @@ class SignUpModelSerializer(UserModelSerializer):
             account = Account.objects.create(**account_data)
 
             logger.info(
-                f"New user & account has been created successfully: User ID={user.id} Account ID={account.id}"
+                "New user & account has been created successfully",
+                extra={"user_id": user.id, "account_id": account.id},
             )
             return user
 
@@ -108,7 +109,12 @@ class SignInSerializer(serializers.Serializer):
 
             if not user.password:
                 logger.error(
-                    f"Wrong sign in method: Email{attrs.get("email") } IP Adress:{attrs.get("ip_address",None)} User Agent:{attrs.get("user_agent")}"
+                    "Wrong sign in method.",
+                    extra={
+                        "email": attrs.get("email"),
+                        "ip_address": attrs.get("ip_address", None),
+                        "user_agent": attrs.get("user_agent", None),
+                    },
                 )
                 raise serializers.ValidationError(
                     {"non_field_error": "Invalid sign in method"},
@@ -120,7 +126,12 @@ class SignInSerializer(serializers.Serializer):
 
             if not user.email_verified:
                 logger.error(
-                    f"Unverified user's sign in attempt: Email{attrs.get("email") } IP Adress:{attrs.get("ip_address",None)} User Agent:{attrs.get("user_agent")}"
+                    "Unverified user's sign in attempt.",
+                    extra={
+                        "email": attrs.get("email"),
+                        "ip_address": attrs.get("ip_address", None),
+                        "user_agent": attrs.get("user_agent", None),
+                    },
                 )
                 raise serializers.ValidationError(
                     {"email": "Unverified email"},
@@ -129,7 +140,12 @@ class SignInSerializer(serializers.Serializer):
 
             if not user.is_active:
                 logger.error(
-                    f"Disabled user's sign in attempt: Email{attrs.get("email") } IP Adress:{attrs.get("ip_address",None)} User Agent:{attrs.get("user_agent")}"
+                    "Disabled user's sign in attempt.",
+                    extra={
+                        "email": attrs.get("email"),
+                        "ip_address": attrs.get("ip_address", None),
+                        "user_agent": attrs.get("user_agent", None),
+                    },
                 )
                 raise serializers.ValidationError(
                     {"email": "Unverified email"},
@@ -150,7 +166,12 @@ class SignInSerializer(serializers.Serializer):
 
         except (User.DoesNotExist, ValueError):
             logger.error(
-                f"Failed sign in attempt: Email{attrs.get("email") } IP Adress:{attrs.get("ip_address",None)} User Agent:{attrs.get("user_agent")}"
+                f"Failed sign in attempt.",
+                extra={
+                    "email": attrs.get("email"),
+                    "ip_address": attrs.get("ip_address", None),
+                    "user_agent": attrs.get("user_agent", None),
+                },
             )
             raise serializers.ValidationError(
                 {"non_field_error": "Email or password  is incorrect"},
@@ -186,7 +207,11 @@ class SignInSocialModelSerializer(serializers.Serializer):
 
         if not data:
             logger.error(
-                f"Failed {attrs.get("provider")} social sign in attempt: Email{attrs.get("email") } "
+                f"Failed {attrs.get("provider")} social sign in attempt. ",
+                extra={
+                    "email": attrs.get("email"),
+                    "provider": attrs.get("provider", None),
+                },
             )
             raise serializers.ValidationError({"id_token": "Invalid ID Token"})
 
