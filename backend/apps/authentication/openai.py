@@ -143,3 +143,30 @@ class AuthViewSetSchema:
                 ),
             ],
         )
+
+    @staticmethod
+    def sign_out() -> Callable:
+        return extend_schema(
+            tags=["Authentication"],
+            description="Sign user out",
+            request=SignOutSerializer,
+            responses=None,
+            examples=[
+                OpenApiExample(
+                    name="Sign Out Request Example",
+                    value={
+                        "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ..."
+                    },
+                    request_only=True,
+                ),
+                OpenApiExample(
+                    name="Sign Out Response Example",
+                    value={
+                        "data": None,
+                        "status_code": status.HTTP_200_OK,
+                        "status_text": "SUCCESS",
+                    },
+                    response_only=True,
+                ),
+            ],
+        )
