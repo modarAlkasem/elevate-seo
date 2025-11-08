@@ -97,3 +97,49 @@ class AuthViewSetSchema:
                 ),
             ],
         )
+
+    @staticmethod
+    def sign_in_social() -> Callable:
+        return extend_schema(
+            tags=["Authentication"],
+            description="Sign user in with social provider",
+            request=SignInSocialModelSerializer,
+            responses=None,
+            examples=[
+                OpenApiExample(
+                    name="Social Sign In Request Example",
+                    value={
+                        "email": "test@test.com",
+                        "provider": "GOOGLE",
+                        "id_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ...",
+                        "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ...",
+                    },
+                    request_only=True,
+                ),
+                OpenApiExample(
+                    name="Social Sign In Response Example",
+                    value={
+                        "data": {
+                            "user": {
+                                "id": 1,
+                                "name": None,
+                                "email": "test@test.com",
+                                "email_verified": "True",
+                                "last_signed_in": None,
+                                "is_active": True,
+                                "avatar": None,
+                                "created_at": "2025-11-08T16:25:43.123456Z",
+                                "updated_at": None,
+                            },
+                            "tokens": {
+                                "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ...",
+                                "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ...",
+                            },
+                        },
+                        "status_code": status.HTTP_200_OK,
+                        "status_text": "SUCCESS",
+                    },
+                    response_only=True,
+                ),
+            ],
+        )
