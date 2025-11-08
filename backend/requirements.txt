@@ -29,6 +29,7 @@ langchain-google-genai~=3.0.0
 # Utilities
 requests~=2.32.5
 pytz==2025.2
+drf-spectacular==0.29.0
 
 # Production
 daphne~=4.2.1

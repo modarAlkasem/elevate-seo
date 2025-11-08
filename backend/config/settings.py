@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     # Third Party
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
+    "drf_spectacular",
     # Apps
     "core",
     "authentication",
@@ -156,6 +157,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "UNAUTHENTICATED_USER": None,
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 # Simple JWT
@@ -203,4 +205,12 @@ OAUTH_PROVIDERS = {
         "client_id": config("GOOGLE_CLIENT_ID"),
         "client_secret": config("GOOGLE_CLIENT_SECRET"),
     }
+}
+
+# DRF Spectacular
+SPECTACULAR_SETTINGS = {
+    "Title": "ElevateSEO",
+    "DESCRIPTION": "🧠 AI-powered SEO optimization platform that analyzes competitors, keywords, and site health with actionable insights.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
