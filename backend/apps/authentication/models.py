@@ -36,7 +36,7 @@ class User(TimeStampMixin):
         help_text="User's avatar obtained from social login provider.",
     )
 
-    REQUIRED_FIELDS = ["email"]  # Used by Django Simple JWT package
+    REQUIRED_FIELDS = []  # Used by Django Simple JWT package
     USERNAME_FIELD = "email"  # Used by Django Simple JWT package
 
     @property
