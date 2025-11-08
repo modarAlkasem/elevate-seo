@@ -11,13 +11,22 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 # Python Imports
+import logging
 from pathlib import Path
 import sys
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 # Third Party Imports
 from decouple import config
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
+
+# App Imports
+from .sentry import before_breadcrumb_filter, before_send_filter
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,6 +41,24 @@ SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
+
+sentry_sdk.init(
+    dsn=config("SENTRY_DSN"),
+    integrations=[
+        DjangoIntegration(),
+        CeleryIntegration(),
+        RedisIntegration(),
+        LoggingIntegration(level=logging.INFO, event_level=logging.ERROR),
+    ],
+    traces_sample_rate=0.1,
+    profiles_sample_rate=0.1,
+    environment=config("ENV"),
+    release=config("RELEASE_VERSION", default="1.0.0"),
+    send_default_pii=False,
+    before_breadcrumb=before_breadcrumb_filter,
+    before_send=before_send_filter,
+    ignore_errors=["django.core.exceptions.DisallowedHost"],
+)
 
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",

@@ -67,7 +67,12 @@ class AuthViewSetSchema:
             examples=[
                 OpenApiExample(
                     name="Sign In Request Example",
-                    value={"email": "test@test.com", "password": "#test12345"},
+                    value={
+                        "email": "test@test.com",
+                        "password": "#test12345",
+                        "ip_address": "192.168.1.25",
+                        "user_agent": "Chrome/120.0.0.0 Safari/537.36",
+                    },
                     request_only=True,
                 ),
                 OpenApiExample(
