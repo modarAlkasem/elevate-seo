@@ -98,7 +98,7 @@ services:
 
     container_name: elevateseo_api
     ports:
-      - "8080:8080"
+      - "8080:8000"
 
     volumes:
       - ../:/app
