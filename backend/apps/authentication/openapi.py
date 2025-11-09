@@ -3,7 +3,7 @@ from typing import Callable
 
 # REST Framework Imports
 from rest_framework.request import Request
-from rest_framework import status
+from rest_framework import serializers, status
 
 # Third Party Imports
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
@@ -28,7 +28,7 @@ class AuthViewSetSchema:
             tags=["Authentication"],
             description="Sign user up with credentials",
             request=SignUpModelSerializer,
-            responses=UserModelSerializer,
+            responses={201: UserModelSerializer},
             examples=[
                 OpenApiExample(
                     name="Sign Up New User Request Example",
@@ -47,7 +47,7 @@ class AuthViewSetSchema:
                             "is_active": True,
                             "avatar": None,
                             "created_at": "2025-11-08T16:25:43.123456Z",
-                            "updated_at": None,
+                            "updated_at": "2025-11-08T16:25:43.123456Z",
                         },
                         "status_code": status.HTTP_201_CREATED,
                         "status_text": "CREATED",
@@ -63,7 +63,7 @@ class AuthViewSetSchema:
             tags=["Authentication"],
             description="Sign user in with credentials",
             request=SignInSerializer,
-            responses=None,
+            responses={200: SignInSerializer},
             examples=[
                 OpenApiExample(
                     name="Sign In Request Example",
@@ -84,11 +84,11 @@ class AuthViewSetSchema:
                                 "name": None,
                                 "email": "test@test.com",
                                 "email_verified": "True",
-                                "last_signed_in": None,
+                                "last_signed_in": "2025-11-08T16:25:43.123456Z",
                                 "is_active": True,
                                 "avatar": None,
                                 "created_at": "2025-11-08T16:25:43.123456Z",
-                                "updated_at": None,
+                                "updated_at": "2025-11-08T16:25:43.123456Z",
                             },
                             "tokens": {
                                 "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ...",
@@ -109,7 +109,7 @@ class AuthViewSetSchema:
             tags=["Authentication"],
             description="Sign user in with social provider",
             request=SignInSocialModelSerializer,
-            responses=None,
+            responses={200: SignInSocialModelSerializer},
             examples=[
                 OpenApiExample(
                     name="Social Sign In Request Example",
@@ -130,11 +130,11 @@ class AuthViewSetSchema:
                                 "name": None,
                                 "email": "test@test.com",
                                 "email_verified": "True",
-                                "last_signed_in": None,
+                                "last_signed_in": "2025-11-08T16:25:43.123456Z",
                                 "is_active": True,
                                 "avatar": None,
                                 "created_at": "2025-11-08T16:25:43.123456Z",
-                                "updated_at": None,
+                                "updated_at": "2025-11-08T16:25:43.123456Z",
                             },
                             "tokens": {
                                 "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ...",
@@ -155,13 +155,10 @@ class AuthViewSetSchema:
             tags=["Authentication"],
             description="Sign user out",
             request=SignOutSerializer,
-            responses=None,
             examples=[
                 OpenApiExample(
                     name="Sign Out Request Example",
-                    value={
-                        "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ..."
-                    },
+                    value={"refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ..."},
                     request_only=True,
                 ),
                 OpenApiExample(

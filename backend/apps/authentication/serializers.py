@@ -47,7 +47,7 @@ class UserModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = "__all__"
-        extra_kwargs: {"password": {"write_only": True, "required": True}}
+        extra_kwargs = {"password": {"write_only": True, "required": True}}
 
 
 class SignUpModelSerializer(UserModelSerializer):
@@ -56,14 +56,16 @@ class SignUpModelSerializer(UserModelSerializer):
     def validate_email(self, email: str) -> str:
 
         try:
-            User.objects.get(email=email)
-            return email
 
-        except User.DoesNotExist:
+            User.objects.get(email=email)
             raise serializers.ValidationError(
                 "User with this email already exists",
                 code=SignUpErrorCodeChoices.EMAIL_ALREADY_EXISTS.value,
             )
+
+        except User.DoesNotExist:
+
+            return email
 
     def create(self, validated_data: dict) -> User:
         with atomic(durable=True):
@@ -159,7 +161,7 @@ class SignInSerializer(serializers.Serializer):
             return {
                 "user": UserModelSerializer(instance=user).data,
                 "tokens": {
-                    "access": refresh_token.access_token,
+                    "access": str(refresh_token.access_token),
                     "refresh": str(refresh_token),
                 },
             }
@@ -242,14 +244,14 @@ class SignInSocialModelSerializer(serializers.Serializer):
             return {
                 "user": UserModelSerializer(instance=account.user).data,
                 "tokens": {
-                    "access": refresh_token.access_token,
+                    "access": str(refresh_token.access_token),
                     "refresh": str(refresh_token),
                 },
             }
 
 
 class SignOutSerializer(serializers.Serializer):
-    refresh_token = serializers.SlugRelatedField(
+    refresh = serializers.SlugRelatedField(
         slug_field="token",
         queryset=OutstandingToken.objects.all(),
         error_messages={"does_not_exist": "Invalid token"},
