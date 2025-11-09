@@ -6,3 +6,5 @@ import GoogleProvider from "next-auth/providers/google";
 import type { GoogleProfile } from "next-auth/providers/google";
 
 import { DateTime } from "luxon";
+
+export const NEXT_AUTH_OPTIONS: AuthOptions = {};

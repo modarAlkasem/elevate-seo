@@ -8,7 +8,7 @@ declare module "next-auth" {
     email_verified: boolean;
     last_signed_in: string;
     disabled: boolean;
-    picture: string | null;
+    avatar: string | null;
     access: string;
     refresh: string;
   }
