@@ -7,7 +7,7 @@ declare module "next-auth" {
     email: string;
     email_verified: boolean;
     last_signed_in: string;
-    disabled: boolean;
+    is_active: boolean;
     avatar: string | null;
     access: string;
     refresh: string;
@@ -22,14 +22,5 @@ declare module "next-auth" {
 }
 
 declare module "next-auth/jwt" {
-  interface JWT {
-    id: number;
-    name: string;
-    email: string;
-    email_verified: boolean;
-    last_signed_in: string;
-    access: string;
-    refresh: string;
-    expires: string;
-  }
+  interface JWT extends User {}
 }
