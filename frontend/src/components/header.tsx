@@ -5,12 +5,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { LogIn, BarChart3 } from "lucide-react";
+import { useSession } from "next-auth/react";
+
 import { Button } from "./ui/button";
 import { ThemeToggle } from "./theme-toggle";
 
 export const Header = () => {
   const pathname = usePathname();
   const [isPricingPage, setIsPricingPage] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     const checkIsPricePage = () => {
