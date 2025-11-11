@@ -3,7 +3,7 @@
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 
-import { AuthDialogProvider } from "@/context/auth-dialog-context";
+import { AuthDialogProvider } from "@/contexts/auth-dialog-context";
 
 export const ClientWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
