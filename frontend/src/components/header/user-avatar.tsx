@@ -15,7 +15,7 @@ export const UserAvatar = React.forwardRef<
     <Avatar
       {...props}
       ref={ref}
-      className="ring-2 dark:ring-blue-800 hover:dark:ring-blue-400 ring-blue-200 hover:ring-blue-500 "
+      className="w-10 h-10 ring-2 dark:ring-blue-800 hover:dark:ring-blue-400 ring-blue-200 hover:ring-blue-500 "
     >
       <AvatarImage src={user.avatar ?? undefined} alt="user's avatar" />
       <AvatarFallback className="font-bold ">
