@@ -1,16 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { LogIn, BarChart3 } from "lucide-react";
+import { useSession } from "next-auth/react";
+
 import { Button } from "./ui/button";
 import { ThemeToggle } from "./theme-toggle";
+import {
+  useAuthDialog,
+  authFormModes,
+  type AuthFormModes,
+} from "@/contexts/auth-dialog-context";
+import { Dialog, DialogTrigger, DialogContent } from "./ui/dialog";
+import { AuthForm } from "./forms/auth-form";
 
 export const Header = () => {
   const pathname = usePathname();
   const [isPricingPage, setIsPricingPage] = useState(false);
+  const { data: session } = useSession();
+  const { setAuthFormMode, setShowDialog, showDialog, authFormMode } =
+    useAuthDialog();
+  const callbackUrlRef = useRef<string>(null);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const checkIsPricePage = () => {
@@ -19,6 +33,26 @@ export const Header = () => {
     checkIsPricePage();
   }, [pathname]);
 
+  useEffect(() => {
+    if (
+      searchParams.get("open-auth-dialog") &&
+      searchParams.get("auth-content") &&
+      Object.values(authFormMode).includes(
+        searchParams.get("auth-context") as AuthFormModes
+      ) &&
+      searchParams.get("callbackUrl")
+    ) {
+      setAuthFormMode("SIGN_IN");
+      setShowDialog(true);
+      callbackUrlRef.current = searchParams.get("callbackUrl");
+    }
+  }, [
+    callbackUrlRef,
+    searchParams,
+    authFormMode,
+    setShowDialog,
+    setAuthFormMode,
+  ]);
   return (
     <header
       className={`sticky top-0 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
@@ -49,10 +83,25 @@ export const Header = () => {
           <ThemeToggle />
 
           {/** Unauthenticated */}
-          <Button variant="outline">
-            <LogIn className="size-4" />
-            <span className="sr-only md:not-sr-only md:ml-2"> Sign in</span>
-          </Button>
+          {session ? null : (
+            <Dialog open={showDialog} onOpenChange={setShowDialog}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <LogIn className="size-4" />
+                  <span className="sr-only md:not-sr-only md:ml-2">
+                    {" "}
+                    Sign in
+                  </span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent
+                className="sm:max-w-md bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-blue-950 dark:to-purple-950"
+                showCloseButton={false}
+              >
+                <AuthForm callbackUrl={callbackUrlRef.current} />
+              </DialogContent>
+            </Dialog>
+          )}
 
           {/** Authenticated  */}
           {/* <Button variant="ghost"></Button> */}
