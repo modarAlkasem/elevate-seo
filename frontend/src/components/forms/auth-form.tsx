@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,6 +28,7 @@ import {
   signIn as signInFetcher,
   signUp as signUpFetcher,
 } from "@/lib/api/auth/fetchers";
+import { DialogHeader, DialogTitle, DialogDescription } from "../ui/dialog";
 
 const ZSignUpSchema = z.object({
   email: z.string().email(),
@@ -84,10 +85,13 @@ const signInErrorMessages: Record<string, string> = {
     "The email or password you provided is incorrect.",
 };
 
-export const AuthForm = ({ callbackUrl }: { callbackUrl: string | null }) => {
+export const AuthForm = () => {
   const { authFormMode, setShowDialog, setAuthFormMode } = useAuthDialog();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  //callbackUrl={callbackUrlRef.current}
+  const callbackUrlRef = useRef<string>(null);
   const form = useForm<TSignInSchema>({
     values: {
       email: "",
@@ -99,6 +103,12 @@ export const AuthForm = ({ callbackUrl }: { callbackUrl: string | null }) => {
         ? zodResolver(ZSignInSchema)
         : zodResolver(ZSignUpSchema),
   });
+
+  useEffect(() => {
+    if (searchParams.get("callbackUrl")) {
+      callbackUrlRef.current = searchParams.get("callbackUrl");
+    }
+  }, [callbackUrlRef, searchParams]);
 
   const onSignInFormSubmit = async ({ email, password }: TSignInSchema) => {
     try {
@@ -120,12 +130,6 @@ export const AuthForm = ({ callbackUrl }: { callbackUrl: string | null }) => {
         });
         return;
       }
-
-      setShowDialog(false);
-
-      if (callbackUrl) {
-        router.push(callbackUrl);
-      }
     } catch (err) {
       toast.error("An unknown error occured", {
         description:
@@ -133,6 +137,12 @@ export const AuthForm = ({ callbackUrl }: { callbackUrl: string | null }) => {
         duration: 5000,
         position: "top-right",
       });
+
+      setShowDialog(false);
+
+      if (callbackUrlRef.current) {
+        router.push(callbackUrlRef.current);
+      }
     }
 
     setIsSubmitting(!isSubmitting);
@@ -183,71 +193,83 @@ export const AuthForm = ({ callbackUrl }: { callbackUrl: string | null }) => {
 
     setIsSubmitting(!isSubmitting);
   };
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(
+          // eslint-disable-next-line react-hooks/refs
           authFormMode === "SIGN_IN" ? onSignInFormSubmit : onSignUpFormSubmit
         )}
-        className="flex flex-col items-center gap-y-4"
+        className="flex flex-col items-center gap-y-4 z-51"
       >
-        <AnimatePresence>
-          {authFormMode == "SIGN_IN" ? (
-            <motion.div
-              animate={{
-                opacity: 1,
-                x: 0,
-              }}
-              exit={{
-                opacity: 0,
-                x: -450,
-              }}
-              className="flex flex-col items-center gap-y-4"
-            >
-              <h2 className="text-center font-bold text-lg md:text-xl   bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Sign in to ElevateSEO
-              </h2>
-              <p className="text-xs md:text-sm text-center text-muted-foreground">
-                Welcome back! Please sign in to continue
-              </p>
-            </motion.div>
-          ) : (
-            <motion.div
-              animate={{
-                opacity: 1,
-                x: 0,
-              }}
-              exit={{
-                opacity: 0,
-                x: -450,
-              }}
-              className="flex flex-col items-center gap-y-4"
-            >
-              <h2 className="text-center font-bold text-lg md:text-xl   bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Create a new account
-              </h2>
-              <p className="text-xs md:text-sm text-center text-muted-foreground">
-                Welcome! Please fill in the details to get started
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <DialogHeader>
+          <AnimatePresence>
+            {authFormMode == "SIGN_IN" ? (
+              <motion.div
+                animate={{
+                  opacity: 1,
+                  x: 0,
+                }}
+                exit={{
+                  opacity: 0,
+                  x: -450,
+                }}
+                className="flex flex-col items-center gap-y-4"
+              >
+                <DialogTitle asChild>
+                  <h2 className="text-center font-bold text-lg md:text-xl   bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    Sign in to ElevateSEO
+                  </h2>
+                </DialogTitle>
+                <DialogDescription asChild>
+                  <p className="text-xs md:text-sm text-center text-muted-foreground">
+                    Welcome back! Please sign in to continue
+                  </p>
+                </DialogDescription>
+              </motion.div>
+            ) : (
+              <motion.div
+                animate={{
+                  opacity: 1,
+                  x: 0,
+                }}
+                exit={{
+                  opacity: 0,
+                  x: -450,
+                }}
+                className="flex flex-col items-center gap-y-4"
+              >
+                <DialogTitle asChild>
+                  <h2 className="text-center font-bold text-lg md:text-xl   bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    Create a new account
+                  </h2>
+                </DialogTitle>
+                <DialogDescription asChild>
+                  <p className="text-xs md:text-sm text-center text-muted-foreground">
+                    Welcome! Please fill in the details to get started
+                  </p>
+                </DialogDescription>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </DialogHeader>
         <Button
           type="button"
           size="lg"
-          className="flex-1 w-full py-2 mt-6  rounded-xl hover:cursor-pointer disabled:cursor-not-allowed bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transition-all duration-300"
+          className="flex-1 w-full py-2 mt-6   disabled:cursor-not-allowed bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 border-0 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 transition-all duration-300 font-semibold"
           disabled={isSubmitting}
           onClick={onAuthWithGoogleClick}
         >
-          <FcGoogle className="!h-6 !w-6 mr-2" />
+          <FcGoogle className="h-6! w-6! mr-2" />
           Continue with Google
         </Button>
         <div className="flex w-full items-center justify-center my-4 ">
-          <div className="flex-1 bg-muted-foreground h-[1px]" />
+          <div className="flex-1 bg-muted-foreground h-px" />
           <span className="mx-2 text-muted-foreground font-semibold mb-1">
             or
           </span>
-          <div className="flex-1 bg-muted-foreground h-[1px]" />
+          <div className="flex-1 bg-muted-foreground h-px" />
         </div>
 
         <fieldset
@@ -261,7 +283,11 @@ export const AuthForm = ({ callbackUrl }: { callbackUrl: string | null }) => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input type="email" {...field} />
+                  <Input
+                    type="email"
+                    className="border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-sm"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -275,7 +301,10 @@ export const AuthForm = ({ callbackUrl }: { callbackUrl: string | null }) => {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <PasswordInput {...field} />
+                  <PasswordInput
+                    className="border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-sm"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -286,9 +315,9 @@ export const AuthForm = ({ callbackUrl }: { callbackUrl: string | null }) => {
         <Button
           type="submit"
           size="lg"
-          className="flex-1 w-full py-2 mt-6  bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transition-all duration-300 rounded-xl"
+          className="flex-1 w-full py-2 mt-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 border-0 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 transition-all duration-300 font-semibold"
           disabled={isSubmitting}
-          loading={isSubmitting}
+          loading={isSubmitting && form.formState.isSubmitting}
           loaderSize="lg"
         >
           {authFormMode === "SIGN_UP" ? "Sign Up" : "Sign In"}

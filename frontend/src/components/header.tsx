@@ -23,7 +23,7 @@ export const Header = () => {
   const { data: session } = useSession();
   const { setAuthFormMode, setShowDialog, showDialog, authFormMode } =
     useAuthDialog();
-  const callbackUrlRef = useRef<string>(null);
+
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -44,15 +44,8 @@ export const Header = () => {
     ) {
       setAuthFormMode("SIGN_IN");
       setShowDialog(true);
-      callbackUrlRef.current = searchParams.get("callbackUrl");
     }
-  }, [
-    callbackUrlRef,
-    searchParams,
-    authFormMode,
-    setShowDialog,
-    setAuthFormMode,
-  ]);
+  }, [searchParams, authFormMode, setShowDialog, setAuthFormMode]);
   return (
     <header
       className={`sticky top-0 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
@@ -95,10 +88,11 @@ export const Header = () => {
                 </Button>
               </DialogTrigger>
               <DialogContent
-                className="sm:max-w-md bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-blue-950 dark:to-purple-950"
+                className="sm:max-w-md bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-blue-950 dark:to-purple-950 "
                 showCloseButton={false}
               >
-                <AuthForm callbackUrl={callbackUrlRef.current} />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 " />
+                <AuthForm />
               </DialogContent>
             </Dialog>
           )}
