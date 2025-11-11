@@ -1,7 +1,5 @@
 "use client";
 
-/// <reference types="./next-auth.d.ts" />
-
 import * as React from "react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";

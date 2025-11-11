@@ -1,7 +1,5 @@
 "use client";
 
-/// <reference types="./next-auth.d.ts" />
-
 import type { Session } from "next-auth";
 
 import { UserAvatar } from "./user-avatar";
