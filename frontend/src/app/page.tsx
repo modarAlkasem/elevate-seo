@@ -94,10 +94,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
               Choose Your SEO Superpower
             </h2>
-            <p
-              className="text-lg text-muted-foreground max-w-2xl mx-auto
-            "
-            >
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Whether you&apos;re just getting started or need advanced
               insights, we&apos;ve got the perfect plan for you.
             </p>
