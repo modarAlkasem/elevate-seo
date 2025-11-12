@@ -92,8 +92,6 @@ class SignUpModelSerializer(UserModelSerializer):
 class SignInSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
-    ip_address = serializers.IPAddressField(required=False)
-    user_agent = serializers.CharField()
 
     def to_internal_value(self, data: Any = None):
 
@@ -114,8 +112,6 @@ class SignInSerializer(serializers.Serializer):
                     "Wrong sign in method.",
                     extra={
                         "email": attrs.get("email"),
-                        "ip_address": attrs.get("ip_address", None),
-                        "user_agent": attrs.get("user_agent", None),
                     },
                 )
                 raise serializers.ValidationError(
@@ -131,8 +127,6 @@ class SignInSerializer(serializers.Serializer):
                     "Unverified user's sign in attempt.",
                     extra={
                         "email": attrs.get("email"),
-                        "ip_address": attrs.get("ip_address", None),
-                        "user_agent": attrs.get("user_agent", None),
                     },
                 )
                 raise serializers.ValidationError(
@@ -145,8 +139,6 @@ class SignInSerializer(serializers.Serializer):
                     "Disabled user's sign in attempt.",
                     extra={
                         "email": attrs.get("email"),
-                        "ip_address": attrs.get("ip_address", None),
-                        "user_agent": attrs.get("user_agent", None),
                     },
                 )
                 raise serializers.ValidationError(
@@ -171,8 +163,6 @@ class SignInSerializer(serializers.Serializer):
                 f"Failed sign in attempt.",
                 extra={
                     "email": attrs.get("email"),
-                    "ip_address": attrs.get("ip_address", None),
-                    "user_agent": attrs.get("user_agent", None),
                 },
             )
             raise serializers.ValidationError(

@@ -10,7 +10,10 @@ export const UserInfo = ({ user }: { user: Session["user"] }) => {
       <UserAvatar user={user} />
 
       <div className="flex flex-col gap-y-1">
-        {user.name && <span className="font-semibold "> {user.name}</span>}
+        <span className="font-semibold ">
+          {" "}
+          {user.name ? user.name : "ElevateSEO User"}
+        </span>
 
         <span className="text-sm text-muted-foreground ">{user.email}</span>
       </div>

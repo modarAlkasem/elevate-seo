@@ -112,12 +112,12 @@ export const AuthForm = () => {
 
   const onSignInFormSubmit = async ({ email, password }: TSignInSchema) => {
     try {
-      setIsSubmitting(!isSubmitting);
+      setIsSubmitting((prev) => !prev);
       const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl: "/",
-        redirect: false,
+        callbackUrl: callbackUrlRef.current ? callbackUrlRef.current : "/",
+        redirect: !!callbackUrlRef.current,
       });
 
       if (result?.error && isErrorCode(result.error)) {
@@ -128,7 +128,12 @@ export const AuthForm = () => {
           duration: 5000,
           position: "top-right",
         });
+
+        setIsSubmitting((prev) => !prev);
+
         return;
+      } else if (result?.error && !isErrorCode(result.error)) {
+        throw new Error(result.error);
       }
     } catch (err) {
       toast.error("An unknown error occured", {
@@ -138,19 +143,13 @@ export const AuthForm = () => {
         position: "top-right",
       });
 
-      setShowDialog(false);
-
-      if (callbackUrlRef.current) {
-        router.push(callbackUrlRef.current);
-      }
+      setIsSubmitting(!isSubmitting);
     }
-
-    setIsSubmitting(!isSubmitting);
   };
 
   const onSignUpFormSubmit = async ({ email, password }: TSignInSchema) => {
     try {
-      setIsSubmitting(!isSubmitting);
+      setIsSubmitting((prev) => !prev);
       await signUpFetcher({ email, password });
       toast.success("Registeration Successful", {
         description: "You have successfully registered.",
@@ -170,7 +169,7 @@ export const AuthForm = () => {
         position: "top-right",
       });
     }
-    setIsSubmitting(!isSubmitting);
+    setIsSubmitting((prev) => !prev);
   };
 
   const onAuthWithGoogleClick = async () => {
