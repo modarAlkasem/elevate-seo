@@ -19,7 +19,7 @@ api.interceptors.request.use(
     if (typeof window !== "undefined") {
       const session = await getSession();
       accessToken = session?.access;
-    } else if (!config.url?.includes("/api/auth/token/refresh/")) {
+    } else if (!config.url?.includes("auth/token/refresh/")) {
       const session = await getServerSession(NEXT_AUTH_OPTIONS);
       accessToken = session?.access;
     }

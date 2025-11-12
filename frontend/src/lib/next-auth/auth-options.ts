@@ -69,19 +69,23 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
           password: credentials.password,
         };
 
-        const result = await signIn(payload);
+        try {
+          const result = await signIn(payload);
 
-        return {
-          id: result.user.id,
-          name: result.user.name,
-          email: result.user.email,
-          email_verified: result.user.email_verified,
-          last_signed_in: result.user.last_signed_in as string,
-          is_active: result.user.is_active,
-          avatar: result.user.avatar,
-          access: result.tokens.access,
-          refresh: result.tokens.refresh,
-        } satisfies User;
+          return {
+            id: result.user.id,
+            name: result.user.name,
+            email: result.user.email,
+            email_verified: result.user.email_verified,
+            last_signed_in: result.user.last_signed_in as string,
+            is_active: result.user.is_active,
+            avatar: result.user.avatar,
+            access: result.tokens.access,
+            refresh: result.tokens.refresh,
+          } satisfies User;
+        } catch (err: any) {
+          throw Error(err?.status_text);
+        }
       },
     }),
   ],

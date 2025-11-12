@@ -72,7 +72,7 @@ export const refreshToken = async ({
   refresh,
 }: RefreshTokenPayload): Promise<RefreshTokenResponse> => {
   const response = (await api.post<APIResponse<RefreshTokenResponse>>(
-    "/token/refresh/",
+    "auth/token/refresh/",
     {
       refresh,
     }
