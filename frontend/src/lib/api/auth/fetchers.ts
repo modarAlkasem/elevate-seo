@@ -48,7 +48,7 @@ export const signInSocial = async ({
   provider,
 }: SignInSocialPayload): Promise<SignInResponse> => {
   const response = (await api.post<APIResponse<SignInResponse>>(
-    "/social/signin/",
+    "/auth/social/signin/",
     {
       email,
       id_token,
@@ -61,7 +61,7 @@ export const signInSocial = async ({
 };
 
 export const signOut = async ({ refresh }: SignOutPayload): Promise<void> => {
-  const response = (await api.post<APIResponse<null>>("/social/signin/", {
+  const response = (await api.post<APIResponse<null>>("/auth/signout/", {
     refresh,
   })) as unknown as APIResponse;
 

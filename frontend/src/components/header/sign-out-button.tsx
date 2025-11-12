@@ -35,11 +35,11 @@ export const SignOutButton = () => {
   return (
     <Button
       variant="outline"
-      className=" w-full flex justify-start items-start  gap-x-6 px-4.5 py-4  border-none hover:cursor-pointer h-12.5"
+      className=" w-full flex justify-start items-start  gap-x-6 px-4.5 py-4  border-none hover:cursor-pointer h-12.5 bg-transparent hover:bg-transparent hover:opacity-100 group"
       disabled={isSigningOut}
       onClick={onButtonClick}
     >
-      <LogOut className=" font-semibold h-full ml-3 mr-2" />
+      <LogOut className=" font-semibold h-full ml-3 mr-2 group-hover:scale-110 group-hover:translate-x-2 transition-transform duration-300 " />
       <span className=" font-semibold text-sm ">Sign Out</span>
     </Button>
   );

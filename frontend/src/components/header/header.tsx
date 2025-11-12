@@ -16,12 +16,13 @@ import {
 } from "@/contexts/auth-dialog-context";
 import { Dialog, DialogTrigger, DialogContent } from "../ui/dialog";
 import { AuthForm } from "../forms/auth-form";
-import { UserButton } from "../user-button";
+import { UserButton } from "./user-button";
 
 export const Header = () => {
   const pathname = usePathname();
   const [isPricingPage, setIsPricingPage] = useState(false);
   const { data: session } = useSession();
+
   const { setAuthFormMode, setShowDialog, showDialog, authFormMode } =
     useAuthDialog();
 
@@ -78,9 +79,7 @@ export const Header = () => {
 
           {/** Unauthenticated */}
           {session ? (
-            <div className="flex items-center justify-center w-10 h-10 border border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400">
-              <UserButton />
-            </div>
+            <UserButton />
           ) : (
             <Dialog open={showDialog} onOpenChange={setShowDialog}>
               <DialogTrigger asChild>
