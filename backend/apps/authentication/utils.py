@@ -1,6 +1,7 @@
 # Python Imports
 from typing import Optional
 from datetime import datetime
+import logging
 
 # Django Imports
 from django.utils import timezone
@@ -14,6 +15,9 @@ import requests
 
 # App Imports
 from .constants import AccountProviderChoices, AccountTypeChoices
+
+
+logger = logging.Logger(__name__)
 
 
 def validate_google_tokens(id_token: str, access_token: str) -> Optional[dict]:
@@ -48,5 +52,5 @@ def validate_google_tokens(id_token: str, access_token: str) -> Optional[dict]:
         }
 
     except JWTError as e:
-
+        logger.error(str(e))
         return None

@@ -219,7 +219,7 @@ class SignInSocialModelSerializer(serializers.Serializer):
 
         with atomic(durable=True):
             if not user and data:
-                User.objects.create(**data.get("user"))
+                user = User.objects.create(**data.get("user"))
             else:
                 for key, value in data.get("user").items():
                     setattr(user, key, value)
@@ -233,6 +233,7 @@ class SignInSocialModelSerializer(serializers.Serializer):
 
             if not account:
                 data["user"] = user
+
                 account = Account.objects.create(**data)
 
             else:

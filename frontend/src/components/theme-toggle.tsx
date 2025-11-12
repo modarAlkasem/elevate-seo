@@ -13,8 +13,7 @@ import {
 import { useTheme } from "next-themes";
 
 export const ThemeToggle = () => {
-  const { setTheme, theme } = useTheme();
-  console.log(theme);
+  const { setTheme } = useTheme();
 
   return (
     <DropdownMenu>

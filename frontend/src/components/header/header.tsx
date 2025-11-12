@@ -7,20 +7,22 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { LogIn, BarChart3 } from "lucide-react";
 import { useSession } from "next-auth/react";
 
-import { Button } from "./ui/button";
-import { ThemeToggle } from "./theme-toggle";
+import { Button } from "../ui/button";
+import { ThemeToggle } from "../theme-toggle";
 import {
   useAuthDialog,
   authFormModes,
   type AuthFormModes,
 } from "@/contexts/auth-dialog-context";
-import { Dialog, DialogTrigger, DialogContent } from "./ui/dialog";
-import { AuthForm } from "./forms/auth-form";
+import { Dialog, DialogTrigger, DialogContent } from "../ui/dialog";
+import { AuthForm } from "../forms/auth-form";
+import { UserButton } from "./user-button";
 
 export const Header = () => {
   const pathname = usePathname();
   const [isPricingPage, setIsPricingPage] = useState(false);
   const { data: session } = useSession();
+
   const { setAuthFormMode, setShowDialog, showDialog, authFormMode } =
     useAuthDialog();
 
@@ -76,7 +78,9 @@ export const Header = () => {
           <ThemeToggle />
 
           {/** Unauthenticated */}
-          {session ? null : (
+          {session ? (
+            <UserButton />
+          ) : (
             <Dialog open={showDialog} onOpenChange={setShowDialog}>
               <DialogTrigger asChild>
                 <Button variant="outline">
