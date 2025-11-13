@@ -1,5 +1,6 @@
 declare namespace NodeJS {
   interface ProcessEnv {
+    NEXT_PUBLIC_SITE_URL: string;
     NEXT_PUBLIC_BASE_API_URL: string;
     NEXT_PUBLIC_WEB_SOCKET_BASE_API_URL: string;
 
