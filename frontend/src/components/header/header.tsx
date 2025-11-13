@@ -38,8 +38,8 @@ export const Header = () => {
   useEffect(() => {
     if (
       searchParams.get("open-auth-dialog") &&
-      searchParams.get("auth-content") &&
-      Object.values(authFormMode).includes(
+      searchParams.get("auth-context") &&
+      Object.values(authFormModes).includes(
         searchParams.get("auth-context") as AuthFormModes
       ) &&
       searchParams.get("callbackUrl")
