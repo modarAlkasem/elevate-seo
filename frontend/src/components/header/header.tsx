@@ -67,7 +67,7 @@ export const Header = () => {
         <div className="flex flex-1 items-center justify-end gap-2">
           {session && (
             <Link href="/dashboard">
-              <Button variant="outline">
+              <Button variant="outline" name="Dashboard">
                 <BarChart3 className="size-4" />
                 <span className="sr-only md:not-sr-only md:ml-2">
                   {" "}

@@ -11,10 +11,12 @@ export const signIn = async ({
   page,
   email,
   password,
+  withExpecting = true,
 }: {
   page: Page;
   email: string;
   password: string;
+  withExpecting?: boolean;
 }) => {
   await openAuthForm(page);
 
@@ -27,9 +29,10 @@ export const signIn = async ({
 
   await page.click('button[type="submit"]:has-text("Sign In")');
 
-  await expect(page.locator('[data-slot="dropdown-menu-trigger"]')).toBeVisible(
-    {
-      timeout: 5000,
-    }
-  );
+  if (withExpecting)
+    await expect(page.locator('button span:has-text("Dashboard")')).toBeVisible(
+      {
+        timeout: 5000,
+      }
+    );
 };

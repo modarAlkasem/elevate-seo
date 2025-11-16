@@ -1,7 +1,6 @@
 import { test, expect } from "@playwright/test";
 
 import { openAuthForm } from "./fixtures/auth/auth-helpers";
-import { TEST_USER } from "./fixtures/auth/test-data";
 import { signIn } from "./fixtures/auth/auth-helpers";
 import { testUser } from "./fixtures/auth/auth-fixtures";
 
@@ -34,57 +33,35 @@ test.describe("Sign Up", () => {
       timeout: 5000,
     });
   });
-
-  // test("should sign out successfully", async ({ page }) => {
-  //   await page.fill('input[name="email"]', email);
-  //   await page.fill('input[name="password"]', password);
-
-  //   await page.click('button[type="submit"]:has-text("Sign Up")');
-
-  //   await expect(
-  //     page.getByRole("heading", { name: "Sign in to ElevateSEO" })
-  //   ).toBeVisible({ timeout: 5000 });
-
-  //   await page.fill('input[name="email"]', email);
-  //   await page.fill('input[name="password"]', password);
-  //   await page.click('button[type="submit"]:has-text("Sign In")');
-
-  //   await expect(page.locator('[data="dropdown-menu-trigger"]')).toBeVisible({
-  //     timeout: 5000,
-  //   });
-
-  //   await page.click('[data="dropdown-menu-trigger"]');
-  //   await page.getByRole("button", { name: "Sign Out" }).click();
-  //   await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible({
-  //     timeout: 5000,
-  //   });
-  // });
 });
 
 test.describe("Sign In", () => {
-  test.beforeAll(async ({ request }) => {});
+  testUser(
+    "should sign in with existing account",
+    async ({ page, testUser }) => {
+      await signIn({
+        page,
+        email: testUser.email,
+        password: testUser.password,
+      });
+    }
+  );
 
-  test("should sign in with existing account", async ({ page }) => {
-    await signIn({
-      page,
-      email: TEST_USER.EMAIL,
-      password: TEST_USER.PASSWORD,
-    });
-  });
+  testUser(
+    "should show error for wrong password",
+    async ({ page, testUser }) => {
+      await signIn({
+        page,
+        email: testUser.email,
+        password: "WrongPassword!",
+        withExpecting: false,
+      });
 
-  test("should show error for wrong password", async ({ page }) => {
-    await openAuthForm(page);
-    await page.fill('input[name="email"]', TEST_USER.EMAIL);
-    await page.fill('input[name="password"]', "WrongPassword!");
-
-    await page.click('button[type="submit"]:has-text("Sign In")');
-
-    await expect(
-      page
-        .locator("[data-sonner-toast]")
-        .filter({ hasText: "Unable to sign in" })
-    ).toBeVisible({ timeout: 5000 });
-  });
+      await expect(page.getByText("Unable to sign in")).toBeVisible({
+        timeout: 5000,
+      });
+    }
+  );
 });
 
 test.describe("Protected Routes", () => {
@@ -93,13 +70,13 @@ test.describe("Protected Routes", () => {
   }) => {
     await page.goto("/dashboard");
 
-    await page.waitForURL("/");
-    expect(
-      page.getByRole("paragraph", {
-        name: `Harness the power of Bright Data&apos;s SERP Perplexity Scraper to
-              create comprehensive SEO reports instantly.`,
-      })
-    ).toBeVisible();
+    await page.waitForURL(
+      "/?open-auth-dialog=true&auth-context=SIGN_IN&callbackUrl=%2Fdashboard"
+    );
+    await expect(page.locator('[role="dialog"]')).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Sign in to ElevateSEO" })
+    ).toBeVisible({ timeout: 5000 });
   });
 
   testUser(
@@ -112,6 +89,23 @@ test.describe("Protected Routes", () => {
       });
 
       await page.goto("/dashboard");
+      await expect(page).toHaveURL("/dashboard");
     }
   );
+});
+
+testUser.describe("Sign Out", () => {
+  testUser("should sign authenticaed user out", async ({ page, testUser }) => {
+    await signIn({
+      page,
+      email: testUser.email,
+      password: testUser.password,
+    });
+
+    await page.locator("#user-button").click();
+
+    await page.getByRole("button", { name: "Sign Out" }).click();
+
+    await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
+  });
 });

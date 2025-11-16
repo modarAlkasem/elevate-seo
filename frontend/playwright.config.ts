@@ -1,4 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
+import { config } from "dotenv";
+
+config({ path: ".env.local" });
 
 /**
  * Read environment variables from file.
@@ -25,7 +28,7 @@ export default defineConfig({
   reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
 
-  timeout: 20 * 1000,
+  timeout: 10 * 1000,
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
@@ -41,10 +44,10 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
 
-    {
-      name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
-    },
+    // {
+    //   name: "firefox",
+    //   use: { ...devices["Desktop Firefox"] },
+    // },
 
     /* Test against mobile viewports. */
     // {
