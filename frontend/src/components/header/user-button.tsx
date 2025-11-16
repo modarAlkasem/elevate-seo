@@ -22,7 +22,7 @@ export const UserButton = () => {
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild id="user-button">
         <UserAvatar user={user} />
       </DropdownMenuTrigger>
 
