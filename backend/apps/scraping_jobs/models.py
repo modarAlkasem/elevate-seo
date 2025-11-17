@@ -35,15 +35,6 @@ class ScrapingJobQuerySet(models.QuerySet):
         return super().create(**data)
 
     def update_job_with_snapshot_id(self, job_id: str, snapshot_id: str) -> None:
-        if job_id is None:
-            raise ValueError(
-                "ScrapingJob.update_job_with_snapshot_id() requires 'job_id'."
-            )
-
-        if snapshot_id is None:
-            raise ValueError(
-                "ScrapingJob.update_job_with_snapshot_id() requires 'snapshot_id'."
-            )
 
         self.filter(id=job_id).update(
             snapshot_id=snapshot_id,
@@ -53,17 +44,13 @@ class ScrapingJobQuerySet(models.QuerySet):
 
     def set_job_to_analyzing(self, job_id: str) -> None:
 
-        if job_id is None:
-            raise ValueError("ScrapingJob.set_job_to_analyzing() requires 'job_id'.")
-
         self.filter(id=job_id).update(
             status=ScrapingJobStatusChoices.ANALYZING.value,
             error=None,
         )
 
     def save_raw_scraping_data(self, job_id: str, raw_data: Any) -> None:
-        if job_id is None:
-            raise ValueError("ScrapingJob.save_raw_scraping_data() requires 'job_id'.")
+
         self.filter(id=job_id).update(
             results=raw_data,
             status=ScrapingJobStatusChoices.ANALYZING.value,
@@ -71,22 +58,12 @@ class ScrapingJobQuerySet(models.QuerySet):
         )
 
     def save_seo_report(self, job_id: str, seo_report: Any) -> None:
-        if job_id is None:
-            raise ValueError("ScrapingJob.save_seo_report() requires 'job_id'.")
-
-        if seo_report is None:
-            raise ValueError("ScrapingJob.save_seo_report() requires 'seo_report'.")
 
         self.filter(id=job_id).update(
             seo_report=seo_report,
         )
 
     def save_analysis_prompt(self, job_id: str, prompt: str) -> None:
-        if job_id is None:
-            raise ValueError("ScrapingJob.save_analysis_prompt() requires 'job_id'.")
-
-        if prompt is None:
-            raise ValueError("ScrapingJob.save_analysis_prompt() requires 'prompt'.")
 
         self.filter(id=job_id).update(
             analysis_prompt=prompt,
@@ -94,15 +71,9 @@ class ScrapingJobQuerySet(models.QuerySet):
 
     def get_job_by_id(self, job_id: str) -> Optional[ScrapingJob]:
 
-        if job_id is None:
-            raise ValueError("ScrapingJob.get_job_by_id() requires 'job_id'.")
-
         return self.filter(id=job_id).first()
 
     def set_job_to_completed(self, job_id: str) -> None:
-
-        if job_id is None:
-            raise ValueError("ScrapingJob.set_job_to_completed() requires 'job_id'.")
 
         self.filter(id=job_id).update(
             status=ScrapingJobStatusChoices.COMPLETED.value,
@@ -112,12 +83,6 @@ class ScrapingJobQuerySet(models.QuerySet):
 
     def set_job_to_failed(self, job_id: str, error: str) -> None:
 
-        if job_id is None:
-            raise ValueError("ScrapingJob.set_job_to_failed() requires 'job_id'.")
-
-        if error is None:
-            raise ValueError("ScrapingJob.set_job_to_failed() requires 'error'.")
-
         self.filter(id=job_id).update(
             status=ScrapingJobStatusChoices.FAILED.value,
             error=error,
@@ -126,8 +91,6 @@ class ScrapingJobQuerySet(models.QuerySet):
 
     def retry_job(self, job_id: str) -> None:
         """Reset the job via reset it's status to PENDING and clear error, results and snapshotId"""
-        if job_id is None:
-            raise ValueError("ScrapingJob.retry_job() requires 'job_id'.")
 
         self.filter(id=job_id).update(
             status=ScrapingJobStatusChoices.PENDING.value,
@@ -155,12 +118,6 @@ class ScrapingJobQuerySet(models.QuerySet):
 
         """
 
-        if job_id is None:
-            raise ValueError("ScrapingJob.can_use_smart_retry() requires 'job_id'.")
-
-        if user_id is None:
-            raise ValueError("ScrapingJob.can_use_smart_retry() requires 'user_id'.")
-
         job: ScrapingJob = self.filter(id=job_id).first()
 
         if not job or job.user.id != user_id:
@@ -179,6 +136,37 @@ class ScrapingJobQuerySet(models.QuerySet):
             "has_scraping_data": has_scraping_data,
             "has_analysis_prompt": has_analysis_prompt,
         }
+
+    def reset_job_for_analyzing_retry(self, job_id: str) -> None:
+        """
+        Reset job for analysis retry - clears analysis results but keeps scraping data
+
+        Args:
+            job_id: scraping job ID
+
+        """
+
+        self.filter(id=job_id).update(
+            status=ScrapingJobStatusChoices.ANALYZING.value,
+            error=None,
+            completed_at=None,
+            seo_report=None,
+        )
+
+    def get_job_by_snapshot_id(
+        self, user_id: int, snapshot_id: str
+    ) -> Optional[ScrapingJob]:
+        """
+        Fetch ScrapingJob for specific snapshot_id and user_id
+
+        Args:
+            snapshot_id: BrightData's scraping job ID
+            user_id: User's ID
+
+        Returns: ScrapingJob Instance (Optional)
+        """
+
+        return self.filter(snapshot_id=snapshot_id, user=user_id).first()
 
 
 class ScrapingJob(CreatedAtMixin):
