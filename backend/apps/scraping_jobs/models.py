@@ -18,24 +18,38 @@ from .constants import ScrapingJobStatusChoices
 
 class ScrapingJobQuerySet(models.QuerySet):
     def create(self, **kwargs: dict) -> ScrapingJob:
+        """Create and return a new ScrapingJob instance
+
+        Expected kwargs:
+            user(User | str): The user instance or user ID
+            original_prompt (str): The original prompt provided by user
+
+        Returns:
+            ScrapingJob: The created ScrapingJob instance.
+
+        """
         user = kwargs.get("user")
         original_prompt = kwargs.get("original_prompt")
-
-        if user is None:
-            raise ValueError("ScrapingJob.create() requires 'user'.")
-
-        if original_prompt is None:
-            raise ValueError("ScrapingJob.create() requires 'original_prompt'.")
 
         data = {
             "user": user,
             "original_prompt": original_prompt,
-            "status": ScrapingJobStatusChoices.PENDIN.value,
+            "status": ScrapingJobStatusChoices.PENDING.value,
         }
         return super().create(**data)
 
     def update_job_with_snapshot_id(self, job_id: str, snapshot_id: str) -> None:
+        """
+        Update a ScrapingJob instance's snapshot_id, status, and error fields.
 
+        Args:
+            job_id (str): JobScraping's ID
+            snapshot_id (str): BrightData task ID for tracking.
+
+        Return:
+            None
+
+        """
         self.filter(id=job_id).update(
             snapshot_id=snapshot_id,
             status=ScrapingJobStatusChoices.RUNNING.value,
@@ -43,6 +57,15 @@ class ScrapingJobQuerySet(models.QuerySet):
         )
 
     def set_job_to_analyzing(self, job_id: str) -> None:
+        """
+        Set a ScrapingJob instance's status to ANALYZING and clear its error field.
+
+        Args:
+            job_id (str): JobScraping's ID
+
+        Return:
+            None
+        """
 
         self.filter(id=job_id).update(
             status=ScrapingJobStatusChoices.ANALYZING.value,
@@ -50,6 +73,19 @@ class ScrapingJobQuerySet(models.QuerySet):
         )
 
     def save_raw_scraping_data(self, job_id: str, raw_data: Any) -> None:
+        """
+        Set a ScrapingJob instance's `results` field with received scraping data from BrightData,
+        set the `status` field to ANALYZING, and clear the `error` field.
+
+
+        Args:
+            job_id (str): JobScraping's ID
+            raw_data (Any): scraping data received from BrightData
+
+        Return:
+            None
+
+        """
 
         self.filter(id=job_id).update(
             results=raw_data,
@@ -58,23 +94,63 @@ class ScrapingJobQuerySet(models.QuerySet):
         )
 
     def save_seo_report(self, job_id: str, seo_report: Any) -> None:
+        """
+        Set a ScrapingJob instance's 'seo_report' with structured data received from Gemini
+
+
+        Args:
+            job_id (str): The ScrapingJob instance's ID.
+            seo_report (Any): The structured SEO report data.
+
+        Return:
+            None
+
+        """
 
         self.filter(id=job_id).update(
             seo_report=seo_report,
         )
 
     def save_analysis_prompt(self, job_id: str, prompt: str) -> None:
+        """
+        Save or update the analysis_prompt field of a ScrapingJob instance.
+
+        Args:
+            job_id (str): The ID of the ScrapingJob instance to update.
+            prompt (str): The analysis prompt text to save.
+
+        Returns:
+            None
+        """
 
         self.filter(id=job_id).update(
             analysis_prompt=prompt,
         )
 
     def get_job_by_id(self, job_id: str) -> Optional[ScrapingJob]:
+        """
+        Retrieve a ScrapingJob instance by its ID.
+
+        Args:
+            job_id (str): The ID of the ScrapingJob instance to retrieve.
+
+        Returns:
+            Optional[ScrapingJob]: The ScrapingJob instance if found, otherwise None.
+        """
 
         return self.filter(id=job_id).first()
 
     def set_job_to_completed(self, job_id: str) -> None:
+        """
+        Mark a ScrapingJob instance as completed by updating its status, clearing errors,
+        and setting the completion timestamp.
 
+        Args:
+            job_id (str): The ID of the ScrapingJob instance to update.
+
+        Returns:
+            None
+        """
         self.filter(id=job_id).update(
             status=ScrapingJobStatusChoices.COMPLETED.value,
             error=None,
@@ -82,7 +158,17 @@ class ScrapingJobQuerySet(models.QuerySet):
         )
 
     def set_job_to_failed(self, job_id: str, error: str) -> None:
+        """
+        Mark a ScrapingJob instance as failed by updating its status, setting the error message,
+        and recording the completion timestamp.
 
+        Args:
+            job_id (str): The ID of the ScrapingJob instance to update.
+            error (str): The error message explaining why the job failed.
+
+        Returns:
+            None
+        """
         self.filter(id=job_id).update(
             status=ScrapingJobStatusChoices.FAILED.value,
             error=error,
@@ -90,7 +176,16 @@ class ScrapingJobQuerySet(models.QuerySet):
         )
 
     def retry_job(self, job_id: str) -> None:
-        """Reset the job via reset it's status to PENDING and clear error, results and snapshotId"""
+        """
+        Reset a ScrapingJob instance to allow it to be retried by setting its status
+        to PENDING and clearing error, results, SEO report, snapshot_id, and completion timestamp.
+
+        Args:
+            job_id (str): The ID of the ScrapingJob instance to reset.
+
+        Returns:
+            None
+        """
 
         self.filter(id=job_id).update(
             status=ScrapingJobStatusChoices.PENDING.value,
@@ -103,19 +198,18 @@ class ScrapingJobQuerySet(models.QuerySet):
 
     def can_use_smart_retry(self, job_id: str, user_id: int) -> dict:
         """
-        Check if job can use smart retry (has scraping data and analysis promot)
+        Check whether a ScrapingJob can use smart retry based on available scraping data
+        and analysis prompt.
 
         Args:
-            job_id: scraping job ID
-            user_id: User ID
+            job_id (str): The ID of the ScrapingJob instance.
+            user_id (int): The ID of the user attempting the retry.
 
         Returns:
-        {
-            "can_retry_analysis_only":bool,
-            "has_scraping_data":bool,
-            "has_analysis_prompt":bool
-        }
-
+            dict: A dictionary containing the following keys:
+                - "can_retry_analysis_only" (bool): True if both scraping data and analysis prompt exist.
+                - "has_scraping_data" (bool): True if the job has scraping results.
+                - "has_analysis_prompt" (bool): True if the job has an analysis prompt.
         """
 
         job: ScrapingJob = self.filter(id=job_id).first()
@@ -139,11 +233,14 @@ class ScrapingJobQuerySet(models.QuerySet):
 
     def reset_job_for_analyzing_retry(self, job_id: str) -> None:
         """
-        Reset job for analysis retry - clears analysis results but keeps scraping data
+        Reset a ScrapingJob instance for analysis retry.
+        This clears analysis-related fields but preserves the scraping data.
 
         Args:
-            job_id: scraping job ID
+            job_id (str): The ID of the ScrapingJob instance to reset.
 
+        Returns:
+            None
         """
 
         self.filter(id=job_id).update(
@@ -157,43 +254,45 @@ class ScrapingJobQuerySet(models.QuerySet):
         self, user_id: int, snapshot_id: str
     ) -> Optional[ScrapingJob]:
         """
-        Fetch ScrapingJob for specific snapshot_id and user_id
+        Retrieve a ScrapingJob instance by its BrightData snapshot ID and user ID.
 
         Args:
-            snapshot_id: BrightData's scraping job ID
-            user_id: User's ID
+            user_id (int): The ID of the user who owns the job.
+            snapshot_id (str): BrightData's scraping job ID.
 
-        Returns: ScrapingJob Instance (Optional)
+        Returns:
+            Optional[ScrapingJob]: The ScrapingJob instance if found, otherwise None.
         """
 
         return self.filter(snapshot_id=snapshot_id, user=user_id).first()
 
     def get_user_jobs(self, user_id: int) -> Self:
         """
-        Fetch ScrapingJobs belonging to a specific user.
+        Return a queryset of ScrapingJob instances belonging to a specific user.
 
         Args:
-            user_id (int): The user's ID.
+            user_id (int): The ID of the user whose jobs should be fetched.
 
         Returns:
-            Self: A queryset filtered to the user's jobs.
+            Self: A ScrapingJobQuerySet filtered to the specified user's jobs.
         """
 
         return self.filter(user=user_id)
 
     def delete_job(self, job_id: str) -> bool:
         """
-        Remove specific ScrapingJob.
+        Remove a specific ScrapingJob instance.
 
         Args:
-            job_id (str): ScrapingJob instance's ID.
+            job_id (str): The ID of the ScrapingJob instance to delete.
 
         Returns:
-            bool: Specify whether ScrapingJob instance is deleted or not
+            bool: True if the ScrapingJob was successfully deleted, False if it does not exist.
         """
 
         try:
             self.get(id=job_id).delete()
+            return True
         except self.model.DoesNotExist:
             return False
 
