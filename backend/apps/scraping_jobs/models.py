@@ -125,6 +125,7 @@ class ScrapingJobQuerySet(models.QuerySet):
         )
 
     def retry_job(self, job_id: str) -> None:
+        """Reset the job via reset it's status to PENDING and clear error, results and snapshotId"""
         if job_id is None:
             raise ValueError("ScrapingJob.retry_job() requires 'job_id'.")
 
@@ -136,6 +137,48 @@ class ScrapingJobQuerySet(models.QuerySet):
             seo_report=None,
             snapshot_id=None,
         )
+
+    def can_use_smart_retry(self, job_id: str, user_id: int) -> dict:
+        """
+        Check if job can use smart retry (has scraping data and analysis promot)
+
+        Args:
+            job_id: scraping job ID
+            user_id: User ID
+
+        Returns:
+        {
+            "can_retry_analysis_only":bool,
+            "has_scraping_data":bool,
+            "has_analysis_prompt":bool
+        }
+
+        """
+
+        if job_id is None:
+            raise ValueError("ScrapingJob.can_use_smart_retry() requires 'job_id'.")
+
+        if user_id is None:
+            raise ValueError("ScrapingJob.can_use_smart_retry() requires 'user_id'.")
+
+        job: ScrapingJob = self.filter(id=job_id).first()
+
+        if not job or job.user.id != user_id:
+            return {
+                "can_retry_analysis_only": False,
+                "has_scraping_data": False,
+                "has_analysis_prompt": False,
+            }
+
+        has_scraping_data = job.results and len(job.results) > 0
+        has_analysis_prompt = bool(job.analysis_prompt)
+        can_retry_analysis_only = has_analysis_prompt and has_scraping_data
+
+        return {
+            "can_retry_analysis_only": can_retry_analysis_only,
+            "has_scraping_data": has_scraping_data,
+            "has_analysis_prompt": has_analysis_prompt,
+        }
 
 
 class ScrapingJob(CreatedAtMixin):
