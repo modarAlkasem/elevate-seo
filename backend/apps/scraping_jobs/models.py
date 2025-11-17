@@ -1,5 +1,5 @@
 # Python Imports
-from typing import Any, Optional
+from typing import Any, Optional, Self
 from uuid import uuid4
 
 # Django Imports
@@ -167,6 +167,35 @@ class ScrapingJobQuerySet(models.QuerySet):
         """
 
         return self.filter(snapshot_id=snapshot_id, user=user_id).first()
+
+    def get_user_jobs(self, user_id: int) -> Self:
+        """
+        Fetch ScrapingJobs belonging to a specific user.
+
+        Args:
+            user_id (int): The user's ID.
+
+        Returns:
+            Self: A queryset filtered to the user's jobs.
+        """
+
+        return self.filter(user=user_id)
+
+    def delete_job(self, job_id: str) -> bool:
+        """
+        Remove specific ScrapingJob.
+
+        Args:
+            job_id (str): ScrapingJob instance's ID.
+
+        Returns:
+            bool: Specify whether ScrapingJob instance is deleted or not
+        """
+
+        try:
+            self.get(id=job_id).delete()
+        except self.model.DoesNotExist:
+            return False
 
 
 class ScrapingJob(CreatedAtMixin):
