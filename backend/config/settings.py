@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     # Apps
     "core",
     "authentication",
+    "scraping_jobs",
 ]
 
 MIDDLEWARE = [
