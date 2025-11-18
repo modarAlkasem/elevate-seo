@@ -194,3 +194,14 @@ class CompetitorSchema(BaseModel):
     unique_advantages: List[str]
     relationship: RelationshipType
     evidence: List[EvidenceSchema]
+
+
+# Social presence schema
+class PlatformSchema(BaseModel):
+    platform: str
+    url: Optional[str] = None
+    evidence: List[EvidenceSchema]
+
+
+class SocialPresenceSchema(BaseModel):
+    platforms: List[PlatformSchema]
