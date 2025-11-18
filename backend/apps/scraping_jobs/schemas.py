@@ -205,3 +205,20 @@ class PlatformSchema(BaseModel):
 
 class SocialPresenceSchema(BaseModel):
     platforms: List[PlatformSchema]
+
+
+# Backlink analysis schema
+class BacklinkSourceSchema(BaseModel):
+    source_type: SourceTypeEnum
+    domain: str
+    url: str
+    title: str
+    description: Optional[str] = None
+    link_type: Optional[LinkType] = None
+    evidence: List[EvidenceSchema]
+
+
+class BacklinkAnalysisSchema(BaseModel):
+    total_backlinks: int
+    referring_domains: int
+    backlink_sources: List[BacklinkSourceSchema]
