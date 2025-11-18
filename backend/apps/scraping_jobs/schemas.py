@@ -123,3 +123,21 @@ class InventorySchema(BaseModel):
     unique_domains: List[str]
     source_types: Optional[SourceTypesSchema] = None
     date_range: DateRangeSchema
+
+
+# Content analysis schema
+class ContentThemeSchema(BaseModel):
+    theme: str
+    frequency: int
+    intent: Optional[Literal["informational", "navigational", "transactional"]] = None
+    subthemes: Optional[List[str]] = None
+    evidence: List[EvidenceSchema]
+
+
+class SentimentSchema(BaseModel):
+    overall: Sentiment
+
+
+class ContentAnalysisSchema(BaseModel):
+    content_themes: List[ContentThemeSchema]
+    sentiment: SentimentSchema
