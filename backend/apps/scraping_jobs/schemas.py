@@ -222,3 +222,17 @@ class BacklinkAnalysisSchema(BaseModel):
     total_backlinks: int
     referring_domains: int
     backlink_sources: List[BacklinkSourceSchema]
+
+
+# Recommendations Schema
+class RecommendationSchema(BaseModel):
+    category: RecomendationCategory
+    priority: Priority
+    title: str
+    description: str
+    expected_impact: Priority
+    effort_required: Priority
+    evidence: List[EvidenceSchema]
+    implementation_steps: List[str]
+    data_driven_insights: Optional[List[str]] = None
+    specific_quotes: Optional[List[str]] = None
