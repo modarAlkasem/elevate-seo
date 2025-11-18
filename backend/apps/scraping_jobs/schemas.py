@@ -183,3 +183,14 @@ class KeywordsSchema(BaseModel):
             raise ValueError("Maximum 8 keyword themes allowed")
 
         return v
+
+
+# Competitors schema
+class CompetitorSchema(BaseModel):
+    name: Optional[str] = None
+    domain: str
+    strength_score: float = Field(ge=0, le=10)
+    overlap_keywords: List[str]
+    unique_advantages: List[str]
+    relationship: RelationshipType
+    evidence: List[EvidenceSchema]
