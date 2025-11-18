@@ -245,3 +245,49 @@ class SummarySchema(BaseModel):
     critical_issues: Optional[List[str]] = None
     quick_wins: Optional[List[str]] = None
     long_term_opportunities: Optional[List[str]] = None
+
+
+# Main SEO Report schema
+class SEOReportSchema(BaseModel):
+    meta: MetaSchema
+    inventory: InventorySchema
+    content_analysis: ContentAnalysisSchema
+    keywords: KeywordsSchema
+    competitors: List[CompetitorSchema] = Field(min_length=0, max_length=15)
+    social_presence: SocialPresenceSchema
+    backlink_analysis: BacklinkAnalysisSchema
+    recommendations: Optional[List[RecommendationSchema]] = Field(None, max_length=25)
+    summary: Optional[SummarySchema] = None
+
+    @field_validator("competitors")
+    @classmethod
+    def validate_competitors_length(cls, v):
+        if len(v) > 15:
+            raise ValueError("Maximum 15 competitors allowed")
+        return v
+
+    @field_validator("recommendations")
+    @classmethod
+    def validate_recommendations_length(cls, v):
+        if v and len(v) > 25:
+            raise ValueError("Maximum 25 recommendations allowed")
+        return v
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "meta": {
+                    "entity_name": "Example Corp",
+                    "entity_type": "business",
+                    "analysis_date": "2024-11-18",
+                    "data_sources_count": 50,
+                    "confidence_score": 0.85,
+                },
+                "inventory": {
+                    "total_sources": 50,
+                    "unique_domains": ["example.com", "news.com"],
+                    "date_range": {"earliest": "2023-01-01", "latest": "2024-11-18"},
+                },
+            }
+        }
+    }
