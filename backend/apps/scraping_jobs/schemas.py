@@ -7,6 +7,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
 
 
+# Enums for better type safety
 class EntityType(str, Enum):
     PERSON = "person"
     BUSINESS = "business"
@@ -67,3 +68,58 @@ class RecomendationCategory(str, Enum):
     BRAND_DEVELOPMENT = "brand_development"
     COMPETITOR_ANALYSIS = "competitor_analysis"
     EDUCATIONAL_CONTENT = "educational_content"
+
+
+# Base schemas
+class EvidenceSchema(BaseModel):
+    url: str
+    quote: Optional[str] = None
+    relevance_score: float = Field(ge=0, le=1)
+
+
+class SourceSchema(BaseModel):
+    title: str
+    url: str
+    description: Optional[str] = None
+
+
+class SourceItemSchema(BaseModel):
+    domain: str
+    url: str
+    title: str
+    description: Optional[str] = None
+    quality_score: Optional[float] = Field(None, ge=0, le=1)
+
+
+# Meta Schema
+class MetaSchema(BaseModel):
+    entity_name: str
+    entity_type: EntityType
+    analysis_date: str
+    data_source_count: int
+    confidence_score: float = Field(ge=0, le=1)
+
+
+# Inventory Schema
+class DateRangeSchema(BaseModel):
+    earliest: Optional[str] = None
+    latest: Optional[str] = None
+
+
+class SourceTypesSchema(BaseModel):
+    social_media: Optional[List[SourceItemSchema]] = None
+    professional: Optional[List[SourceItemSchema]] = None
+    educational: Optional[List[SourceItemSchema]] = None
+    community: Optional[List[SourceItemSchema]] = None
+    news: Optional[List[SourceItemSchema]] = None
+    other: Optional[List[SourceItemSchema]] = None
+    official: Optional[List[SourceItemSchema]] = None
+    media: Optional[List[SourceItemSchema]] = None
+    review: Optional[List[SourceItemSchema]] = None
+
+
+class InventorySchema(BaseModel):
+    total_sources: int
+    unique_domains: List[str]
+    source_types: Optional[SourceTypesSchema] = None
+    date_range: DateRangeSchema
