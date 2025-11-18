@@ -236,3 +236,12 @@ class RecommendationSchema(BaseModel):
     implementation_steps: List[str]
     data_driven_insights: Optional[List[str]] = None
     specific_quotes: Optional[List[str]] = None
+
+
+# Summary Schema
+class SummarySchema(BaseModel):
+    overall_score: Optional[float] = Field(None, ge=0, le=100)
+    key_strengths: Optional[List[str]] = None
+    critical_issues: Optional[List[str]] = None
+    quick_wins: Optional[List[str]] = None
+    long_term_opportunities: Optional[List[str]] = None
