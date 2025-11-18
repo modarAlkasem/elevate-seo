@@ -17,7 +17,7 @@ class EntityType(str, Enum):
     UNKNOWN = "unknown"
 
 
-class Entent(str, Enum):
+class Intent(str, Enum):
     INFORMATIONAL = "informational"
     NAVIGATIONAL = "navigational"
     TRANSACTIONAL = "transactional"
@@ -141,3 +141,45 @@ class SentimentSchema(BaseModel):
 class ContentAnalysisSchema(BaseModel):
     content_themes: List[ContentThemeSchema]
     sentiment: SentimentSchema
+
+
+# Keywords schema
+class ContentKeywordSchema(BaseModel):
+    keyword: str
+    Intent: Optional[Intent] = None
+    evidence: List[EvidenceSchema]
+
+
+class KeywordThemeSchema(BaseModel):
+    theme: str
+    keywords: List[str] = Field(max_length=8)
+    evidence: List[EvidenceSchema]
+
+    @field_validator("keywords")
+    @classmethod
+    def validate_keywords_length(cls, v):
+        if len(v) > 8:
+            raise ValueError("Maximum 5 keywords allowed per theme")
+
+        return v
+
+
+class KeywordsSchema(BaseModel):
+    content_keywords: List[ContentKeywordSchema] = Field(max_length=25)
+    keyword_themes: List[KeywordThemeSchema] = Field(max_length=8)
+
+    @field_validator("content_keywords")
+    @classmethod
+    def validate_content_keywords(cls, v):
+        if len(v) > 25:
+            raise ValueError("Maximum 25 content keywords allowed")
+
+        return v
+
+    @field_validator("keyword_themes")
+    @classmethod
+    def validate_keyword_themes_length(cls, v):
+        if len(v) > 8:
+            raise ValueError("Maximum 8 keyword themes allowed")
+
+        return v
