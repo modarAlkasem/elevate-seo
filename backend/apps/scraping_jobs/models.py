@@ -1,5 +1,5 @@
 # Python Imports
-from typing import Any, Optional, Self
+from typing import Any, Optional, Self, List
 from uuid import uuid4
 
 # Django Imports
@@ -8,12 +8,16 @@ from django.core.validators import MinLengthValidator
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
 
+# Third-Party Imports
+from pydantic import ValidationError
+
 # Project Imports
 from core.models import CreatedAtMixin
 from authentication.models import User
 
 # App Imports
 from .constants import ScrapingJobStatusChoices
+from .schemas import SEOReportSchema
 
 
 class ScrapingJobQuerySet(models.QuerySet):
@@ -95,8 +99,9 @@ class ScrapingJobQuerySet(models.QuerySet):
 
     def save_seo_report(self, job_id: str, seo_report: Any) -> None:
         """
-        Set a ScrapingJob instance's 'seo_report' with structured data received from Gemini
+        Set a ScrapingJob instance's 'seo_report' with structured data received from Gemini.
 
+        Raises pydantic.ValidationError exception for invalid schema - caller must handle it.
 
         Args:
             job_id (str): The ScrapingJob instance's ID.
@@ -107,8 +112,9 @@ class ScrapingJobQuerySet(models.QuerySet):
 
         """
 
+        validated = SEOReportSchema(**seo_report)
         self.filter(id=job_id).update(
-            seo_report=seo_report,
+            seo_report=validated.model_dump(),
         )
 
     def save_analysis_prompt(self, job_id: str, prompt: str) -> None:
@@ -131,6 +137,8 @@ class ScrapingJobQuerySet(models.QuerySet):
         """
         Retrieve a ScrapingJob instance by its ID.
 
+        Raises pydantic.ValidationError exception for invalid schema - caller must handle it.
+
         Args:
             job_id (str): The ID of the ScrapingJob instance to retrieve.
 
@@ -138,7 +146,12 @@ class ScrapingJobQuerySet(models.QuerySet):
             Optional[ScrapingJob]: The ScrapingJob instance if found, otherwise None.
         """
 
-        return self.filter(id=job_id).first()
+        job: ScrapingJob = self.filter(id=job_id).first()
+
+        if job and job.seo_report:
+            SEOReportSchema(**job.seo_report)
+
+        return job
 
     def set_job_to_completed(self, job_id: str) -> None:
         """
@@ -256,6 +269,8 @@ class ScrapingJobQuerySet(models.QuerySet):
         """
         Retrieve a ScrapingJob instance by its BrightData snapshot ID and user ID.
 
+        Raises pydantic.ValidationError exception for invalid schema - caller must handle it.
+
         Args:
             user_id (int): The ID of the user who owns the job.
             snapshot_id (str): BrightData's scraping job ID.
@@ -263,12 +278,17 @@ class ScrapingJobQuerySet(models.QuerySet):
         Returns:
             Optional[ScrapingJob]: The ScrapingJob instance if found, otherwise None.
         """
+        job: ScrapingJob = self.filter(snapshot_id=snapshot_id, user=user_id).first()
+        if job and job.seo_report:
+            SEOReportSchema(**job.seo_report)
 
-        return self.filter(snapshot_id=snapshot_id, user=user_id).first()
+        return job
 
     def get_user_jobs(self, user_id: int) -> Self:
         """
         Return a queryset of ScrapingJob instances belonging to a specific user.
+
+        Raises pydantic.ValidationError exception for invalid schema - caller must handle it.
 
         Args:
             user_id (int): The ID of the user whose jobs should be fetched.
@@ -277,7 +297,13 @@ class ScrapingJobQuerySet(models.QuerySet):
             Self: A ScrapingJobQuerySet filtered to the specified user's jobs.
         """
 
-        return self.filter(user=user_id)
+        jobs: List[ScrapingJob] = self.filter(user=user_id)
+
+        for job in jobs:
+            if job and job.seo_report:
+                SEOReportSchema(**job.seo_report)
+
+        return jobs
 
     def delete_job(self, job_id: str) -> bool:
         """
