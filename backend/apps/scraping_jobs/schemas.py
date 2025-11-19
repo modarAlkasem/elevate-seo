@@ -1,5 +1,6 @@
 # Python Imports
 from enum import Enum
+import string
 from typing import List, Optional, Literal
 from datetime import datetime
 
@@ -291,3 +292,12 @@ class SEOReportSchema(BaseModel):
             }
         }
     }
+
+
+# Scraping data schema
+class ScrapingDataSchema(BaseModel):
+    url: str
+    prompt: str
+    answer_text: str
+    sources: List[SourceSchema]
+    timestamp: str
