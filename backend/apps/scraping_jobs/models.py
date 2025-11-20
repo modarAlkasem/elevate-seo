@@ -21,7 +21,7 @@ from .schemas import SEOReportSchema
 
 
 class ScrapingJobQuerySet(models.QuerySet):
-    def create(self, **kwargs: dict) -> ScrapingJob:
+    async def acreate(self, **kwargs: dict) -> ScrapingJob:
         """Create and return a new ScrapingJob instance
 
         Expected kwargs:
@@ -40,7 +40,7 @@ class ScrapingJobQuerySet(models.QuerySet):
             "original_prompt": original_prompt,
             "status": ScrapingJobStatusChoices.PENDING.value,
         }
-        return super().create(**data)
+        return await super().acreate(**data)
 
     def update_job_with_snapshot_id(self, job_id: str, snapshot_id: str) -> None:
         """
@@ -76,7 +76,7 @@ class ScrapingJobQuerySet(models.QuerySet):
             error=None,
         )
 
-    def save_raw_scraping_data(self, job_id: str, raw_data: Any) -> None:
+    async def save_raw_scraping_data(self, job_id: str, raw_data: Any) -> None:
         """
         Set a ScrapingJob instance's `results` field with received scraping data from BrightData,
         set the `status` field to ANALYZING, and clear the `error` field.
@@ -91,7 +91,7 @@ class ScrapingJobQuerySet(models.QuerySet):
 
         """
 
-        self.filter(id=job_id).update(
+        await self.filter(id=job_id).aupdate(
             results=raw_data,
             status=ScrapingJobStatusChoices.ANALYZING.value,
             error=None,
@@ -133,7 +133,7 @@ class ScrapingJobQuerySet(models.QuerySet):
             analysis_prompt=prompt,
         )
 
-    def get_job_by_id(self, job_id: str) -> Optional[ScrapingJob]:
+    async def get_job_by_id(self, job_id: str) -> Optional[ScrapingJob]:
         """
         Retrieve a ScrapingJob instance by its ID.
 
@@ -146,7 +146,7 @@ class ScrapingJobQuerySet(models.QuerySet):
             Optional[ScrapingJob]: The ScrapingJob instance if found, otherwise None.
         """
 
-        job: ScrapingJob = self.filter(id=job_id).first()
+        job: ScrapingJob = await self.filter(id=job_id).afirst()
 
         if job and job.seo_report:
             SEOReportSchema(**job.seo_report)
@@ -209,7 +209,7 @@ class ScrapingJobQuerySet(models.QuerySet):
             snapshot_id=None,
         )
 
-    def can_use_smart_retry(self, job_id: str, user_id: int) -> dict:
+    async def can_use_smart_retry(self, job_id: str, user_id: int) -> dict:
         """
         Check whether a ScrapingJob can use smart retry based on available scraping data
         and analysis prompt.
@@ -225,7 +225,7 @@ class ScrapingJobQuerySet(models.QuerySet):
                 - "has_analysis_prompt" (bool): True if the job has an analysis prompt.
         """
 
-        job: ScrapingJob = self.filter(id=job_id).first()
+        job: ScrapingJob = self.filter(id=job_id).afirst()
 
         if not job or job.user.id != user_id:
             return {
@@ -374,7 +374,7 @@ class ScrapingJob(CreatedAtMixin):
     error = models.TextField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
-    objects = ScrapingJobQuerySet.as_manager()
+    objects: ScrapingJobQuerySet = models.Manager.from_queryset(ScrapingJobQuerySet)
 
     class Meta:
         ordering = ("-created_at",)

@@ -252,3 +252,7 @@ CORS_ALLOWED_ORIGINS = config(
     cast=lambda v: [s.strip() for s in v.split(",")],
     default=["http://localhost:3000", "http://127.0.0.1:3000"],
 )
+
+
+# Bright Data
+BRIGHTDATA_WEBHOOK_SECRET = config("BRIGHTDATA_WEBHOOK_SECRET", cast=str)
