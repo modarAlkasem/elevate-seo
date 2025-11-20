@@ -26,7 +26,15 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 
+# Project Imports
+from apps.scraping_jobs.routing import (
+    webhook_urlpatterns as scraping_jobs_webhook_urlpatterns,
+)
+
+# Scraping Jobs routing
+scraping_jobs = scraping_jobs_webhook_urlpatterns
 urlpatterns = [
+    # Authentication routing
     path("api/auth/", include("authentication.routing")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
@@ -39,4 +47,4 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc-doc",
     ),
-]
+] + scraping_jobs
