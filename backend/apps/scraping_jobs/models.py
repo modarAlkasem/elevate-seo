@@ -42,7 +42,7 @@ class ScrapingJobQuerySet(models.QuerySet):
         }
         return await super().acreate(**data)
 
-    def update_job_with_snapshot_id(self, job_id: str, snapshot_id: str) -> None:
+    async def update_job_with_snapshot_id(self, job_id: str, snapshot_id: str) -> None:
         """
         Update a ScrapingJob instance's snapshot_id, status, and error fields.
 
@@ -54,7 +54,7 @@ class ScrapingJobQuerySet(models.QuerySet):
             None
 
         """
-        self.filter(id=job_id).update(
+        await self.filter(id=job_id).aupdate(
             snapshot_id=snapshot_id,
             status=ScrapingJobStatusChoices.RUNNING.value,
             error=None,
@@ -170,7 +170,7 @@ class ScrapingJobQuerySet(models.QuerySet):
             completed_at=timezone.now(),
         )
 
-    def set_job_to_failed(self, job_id: str, error: str) -> None:
+    async def set_job_to_failed(self, job_id: str, error: str) -> None:
         """
         Mark a ScrapingJob instance as failed by updating its status, setting the error message,
         and recording the completion timestamp.
@@ -182,7 +182,7 @@ class ScrapingJobQuerySet(models.QuerySet):
         Returns:
             None
         """
-        self.filter(id=job_id).update(
+        await self.filter(id=job_id).aupdate(
             status=ScrapingJobStatusChoices.FAILED.value,
             error=error,
             completed_at=timezone.now(),

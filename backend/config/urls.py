@@ -31,11 +31,10 @@ from apps.scraping_jobs.routing import (
     webhook_urlpatterns as scraping_jobs_webhook_urlpatterns,
 )
 
-# Scraping Jobs routing
-scraping_jobs = scraping_jobs_webhook_urlpatterns
+
 urlpatterns = [
-    # Authentication routing
     path("api/auth/", include("authentication.routing")),
+    path("api/scraping-jobs/", include("scraping_jobs.routing")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/doc/swagger/",
@@ -47,4 +46,4 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc-doc",
     ),
-] + scraping_jobs
+] + scraping_jobs_webhook_urlpatterns
