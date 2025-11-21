@@ -16,6 +16,7 @@ from authentication.models import User
 # App Imports
 from ..serializers import ScrapingJobModelSerializer
 from ..models import ScrapingJob
+from ..prompts.perplexity import perplexity_prompt as perplexity_prompt_obj
 
 
 logger = logging.Logger(__name__)
@@ -48,7 +49,7 @@ class ScrapingJobService:
             f"&include_errors=true"
         )
 
-        perplexity_prompt = None
+        perplexity_prompt = perplexity_prompt_obj.build(original_prompt)
 
         payload = {
             "input": [
