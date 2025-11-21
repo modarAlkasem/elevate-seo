@@ -65,6 +65,7 @@ ALLOWED_HOSTS = config(
     cast=lambda v: [s.strip() for s in v.split(",")],
     default=["127.0.0.1", "localhost"],
 )
+API_BASE_URL = config("API_BASE_URL", default="http://localhost:8080")
 
 
 # Application definition
@@ -255,4 +256,7 @@ CORS_ALLOWED_ORIGINS = config(
 
 
 # Bright Data
+BRIGHTDATA_API_KEY = config("BRIGHT_DATA_API_KEY", cast=str)
 BRIGHTDATA_WEBHOOK_SECRET = config("BRIGHTDATA_WEBHOOK_SECRET", cast=str)
+BRIGHTDATA_WEBHOOK_PATH = "/webhooks/brightdata/"
+BRIGHTDATA_DATASET_ID = config("BRIGHTDATA_DATASET_ID", cast=str)
