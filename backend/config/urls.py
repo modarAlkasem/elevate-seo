@@ -15,6 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+# Python Imports
+from pathlib import Path
+import sys
+import os
+
 # Django Imports
 from django.contrib import admin
 from django.urls import path, include
@@ -26,8 +31,11 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(os.path.join(BASE_DIR, "apps"))
+
 # Project Imports
-from apps.scraping_jobs.routing import (
+from scraping_jobs.routing import (
     webhook_urlpatterns as scraping_jobs_webhook_urlpatterns,
 )
 

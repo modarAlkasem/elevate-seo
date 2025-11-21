@@ -9,7 +9,7 @@ from .views import BrightDataWebhookAPIView, ScrapingJobViewSet
 
 
 router = DefaultRouter()
-router.register("", ScrapingJobViewSet.as_view(), basename="scraping-job")
+router.register("", ScrapingJobViewSet, basename="scraping-job")
 
 
 webhook_urlpatterns = [
