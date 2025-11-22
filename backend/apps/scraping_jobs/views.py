@@ -1,9 +1,11 @@
 # REST Framework Imports
 from rest_framework.request import Request
-from rest_framework.views import APIView
-from rest_framework.viewsets import ViewSet
 from rest_framework.serializers import ValidationError
 from rest_framework import status
+
+# Async REST Framework Imports
+from adrf.views import APIView
+from adrf.viewsets import ViewSet
 
 # Project Imports
 from core.responses import Response
@@ -15,7 +17,7 @@ from .serializers import ScrapingJobCreationSerializer
 
 class ScrapingJobViewSet(ViewSet):
 
-    async def create(request: Request) -> Response:
+    async def create(self, request: Request) -> Response:
         data = request.data
         user = request.user
         serializer = ScrapingJobCreationSerializer(data=data)
@@ -30,7 +32,7 @@ class ScrapingJobViewSet(ViewSet):
                 response_data, status_text, status_code = (
                     await ScrapingJobService.create_new_job(
                         user,
-                        validated_data.get("original_prompt"),
+                        validated_data.get("prompt"),
                         validated_data.get("country_code"),
                     )
                 )

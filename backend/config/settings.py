@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Third Party
     "rest_framework",
+    "adrf",
     "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
     "corsheaders",

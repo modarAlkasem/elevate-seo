@@ -1,8 +1,8 @@
-# Django Imports
-from django.core.validators import MinLengthValidator
-
 # REST Framework Imports
 from rest_framework import serializers
+
+# Async REST Framework Imports
+from adrf.serializers import ModelSerializer as AsyncModelSerializer
 
 # App Imports
 from .models import ScrapingJob
@@ -14,7 +14,7 @@ class ScrapingJobCreationSerializer(serializers.Serializer):
     existing_job_id = serializers.UUIDField(required=False)
 
 
-class ScrapingJobModelSerializer(serializers.ModelSerializer):
+class ScrapingJobModelSerializer(AsyncModelSerializer):
 
     class Meta:
         model = ScrapingJob

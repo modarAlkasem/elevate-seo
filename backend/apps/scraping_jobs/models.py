@@ -374,7 +374,7 @@ class ScrapingJob(CreatedAtMixin):
     error = models.TextField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
-    objects: ScrapingJobQuerySet = models.Manager.from_queryset(ScrapingJobQuerySet)
+    objects: ScrapingJobQuerySet = ScrapingJobQuerySet.as_manager()
 
     class Meta:
         ordering = ("-created_at",)
