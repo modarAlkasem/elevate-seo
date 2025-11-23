@@ -39,11 +39,10 @@ class ScrapingJobService:
             user=user, original_prompt=original_prompt
         )
 
-        webhook_url = f"{settings.API_BASE_URL}{settings.BRIGHTDATA_WEBHOOK_PATH}/webhooks/brightdata/?job-id=${scraping_job.id}"
+        webhook_url = f"{settings.API_BASE_URL}{settings.BRIGHTDATA_WEBHOOK_PATH}?job-id={scraping_job.id}"
         encoded_webhook_url = quote(webhook_url, safe="")
-
         url = (
-            f"https://api.brightdata.com/datasets/v3/scrape"
+            f"https://api.brightdata.com/datasets/v3/trigger"
             f"?dataset_id={settings.BRIGHTDATA_DATASET_ID}"
             f"&notify={encoded_webhook_url}"
             f"&include_errors=true"
