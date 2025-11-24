@@ -39,11 +39,10 @@ class ScrapingJobService:
             user=user, original_prompt=original_prompt
         )
 
-        webhook_url = f"{settings.API_BASE_URL}{settings.BRIGHTDATA_WEBHOOK_PATH}/webhooks/brightdata/?job-id=${scraping_job.id}"
+        webhook_url = f"{settings.API_BASE_URL}{settings.BRIGHTDATA_WEBHOOK_PATH}?job-id={scraping_job.id}"
         encoded_webhook_url = quote(webhook_url, safe="")
-
         url = (
-            f"https://api.brightdata.com/datasets/v3/scrape"
+            f"https://api.brightdata.com/datasets/v3/trigger"
             f"?dataset_id={settings.BRIGHTDATA_DATASET_ID}"
             f"&notify={encoded_webhook_url}"
             f"&include_errors=true"
@@ -88,7 +87,7 @@ class ScrapingJobService:
                         f"BrightData API call's error for job {scraping_job.id}: {error_text}"
                     )
 
-                    await scraping_job.objects.set_job_to_failed(
+                    await ScrapingJob.objects.set_job_to_failed(
                         scraping_job.id, error_msg
                     )
 
@@ -104,8 +103,12 @@ class ScrapingJobService:
                     await ScrapingJob.objects.update_job_with_snapshot_id(
                         scraping_job.id, data.get("snapshot_id")
                     )
+
+                    response_data = await ScrapingJobModelSerializer(
+                        instance=scraping_job
+                    ).adata
                     return (
-                        ScrapingJobModelSerializer(instance=scraping_job).data,
+                        response_data,
                         "CREATED",
                         status.HTTP_201_CREATED,
                     )
@@ -116,7 +119,7 @@ class ScrapingJobService:
                 f"BrightData API call timeout error for job {scraping_job.id}: {error_msg}"
             )
 
-            await scraping_job.objects.set_job_to_failed(scraping_job.id, error_msg)
+            await ScrapingJob.objects.set_job_to_failed(scraping_job.id, error_msg)
 
             return (
                 error_msg,
@@ -130,7 +133,7 @@ class ScrapingJobService:
                 f"BrightData API call's error for job {scraping_job.id}: {error_msg}"
             )
 
-            await scraping_job.objects.set_job_to_failed(scraping_job.id, error_msg)
+            await ScrapingJob.objects.set_job_to_failed(scraping_job.id, error_msg)
 
             return (
                 error_msg,
