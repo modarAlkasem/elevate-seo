@@ -12,13 +12,18 @@ from langchain.agents import create_agent
 from langchain.agents.structured_output import ProviderStrategy
 from langchain.messages import HumanMessage
 from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 # App Imports
 from .models import ScrapingJob
 from .schemas import SEOReportSchema
 from .prompts.gemini import gemini_prompt
+from .consumers import ScrapingJoStatus
+from .constants import ScrapingJobStatusChoices
 
 logger = get_task_logger(__name__)
+
+channel_layer = get_channel_layer()
 
 
 @shared_task(bind=True)
@@ -31,6 +36,7 @@ async def analyze_scraped_data(self, job_id: str):
                       should be analyzed.
 
     """
+    event_data: ScrapingJoStatus
     try:
         job: ScrapingJob = ScrapingJob.objects.get(id=job_id)
 
@@ -43,7 +49,27 @@ async def analyze_scraped_data(self, job_id: str):
 
             logger.error(error_message.format(f": {job.id}"))
 
+            event_data = {
+                "type": "job_status_update",
+                "data": {
+                    "status": ScrapingJobStatusChoices.FAILED.value,
+                    "job_id": job_id,
+                },
+                "message": "Analyzing ScrapingJob has been failed",
+            }
+            async_to_sync(channel_layer.group_send)(f"job_{job_id}", event_data)
+
         ScrapingJob.objects.set_job_to_analyzing(job.id)
+
+        event_data = {
+            "type": "job_status_update",
+            "data": {
+                "status": ScrapingJobStatusChoices.ANALYZING.value,
+                "job_id": job_id,
+            },
+            "message": "ScrapingJob Analysis has been started",
+        }
+        async_to_sync(channel_layer.group_send)(f"job_{job_id}", event_data)
 
         scraping_data = (
             job.results if isinstance(job.results, Sequence) else [job.results]
@@ -67,10 +93,39 @@ async def analyze_scraped_data(self, job_id: str):
         ScrapingJob.objects.save_seo_report(job.id, result["structured_reponse"])
 
         ScrapingJob.objects.set_job_to_completed(job.id)
+        event_data = {
+            "type": "job_status_update",
+            "data": {
+                "status": ScrapingJobStatusChoices.COMPLETED.value,
+                "job_id": job_id,
+            },
+            "message": "ScrapingJob Analysis has been completed successfully",
+        }
+        async_to_sync(channel_layer.group_send)(f"job_{job_id}", event_data)
 
     except ScrapingJob.DoesNotExist:
         logger.error(f"No ScrapingJob found for given ID: {job_id}")
+        event_data = {
+            "type": "job_status_update",
+            "data": {
+                "status": ScrapingJobStatusChoices.FAILED.value,
+                "job_id": job_id,
+            },
+            "message": "Analyzing ScrapingJob has been failed",
+        }
+        async_to_sync(channel_layer.group_send)(f"job_{job_id}", event_data)
 
     except Exception as e:
         async_to_sync(ScrapingJob.objects.set_job_to_failed)(job_id, str(e))
+
         logger.error(f"ScarpingJob {job_id} marked as failed due to analysis error")
+
+        event_data = {
+            "type": "job_status_update",
+            "data": {
+                "status": ScrapingJobStatusChoices.FAILED.value,
+                "job_id": job_id,
+            },
+            "message": "Analyzing ScrapingJob has been failed",
+        }
+        async_to_sync(channel_layer.group_send)(f"job_{job_id}", event_data)

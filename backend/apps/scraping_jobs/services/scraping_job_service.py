@@ -13,13 +13,14 @@ from django.conf import settings
 # Project Imports
 from authentication.models import User
 
+
 # App Imports
 from ..serializers import ScrapingJobModelSerializer
 from ..models import ScrapingJob
 from ..prompts.perplexity import perplexity_prompt as perplexity_prompt_obj
 
 
-logger = logging.Logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class ScrapingJobService:
