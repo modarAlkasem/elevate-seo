@@ -24,6 +24,7 @@ from channels.security.websocket import AllowedHostsOriginValidator
 
 # Project Imports
 from scraping_jobs.routing import websocket_patterns
+from core.middlewares import WebsocketJWTAuthentication
 
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
@@ -35,6 +36,8 @@ django_asgi_app = get_asgi_application()
 application = ProtocolTypeRouter(
     {
         "http": django_asgi_app,
-        "websocket": AllowedHostsOriginValidator(websocket_patterns),
+        "websocket": AllowedHostsOriginValidator(
+            WebsocketJWTAuthentication(URLRouter(websocket_patterns))
+        ),
     }
 )
