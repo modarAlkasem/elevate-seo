@@ -1,0 +1,76 @@
+# Python Imports
+from collections.abc import Sequence
+
+# Django Imports
+from django.conf import settings
+
+# Third-party Imports
+from celery import shared_task
+from celery.utils.log import get_task_logger
+from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
+from langchain.agents import create_agent
+from langchain.agents.structured_output import ProviderStrategy
+from langchain.messages import HumanMessage
+from asgiref.sync import async_to_sync
+
+# App Imports
+from .models import ScrapingJob
+from .schemas import SEOReportSchema
+from .prompts.gemini import gemini_prompt
+
+logger = get_task_logger(__name__)
+
+
+@shared_task(bind=True)
+async def analyze_scraped_data(self, job_id: str):
+    """
+    Analyze scraped data for the given ScrapingJob using Gemini.
+
+    Args:
+      job_id (str): The ID of the ScrapingJob whose scraped data
+                      should be analyzed.
+
+    """
+    try:
+        job: ScrapingJob = ScrapingJob.objects.get(id=job_id)
+
+        if not job.results or len(job.results) == 0:
+            error_message = "No scraping data available for scraping job${0}"
+
+            async_to_sync(ScrapingJob.objects.set_job_to_failed)(
+                job.id, error_message.format("")
+            )
+
+            logger.error(error_message.format(f": {job.id}"))
+
+        ScrapingJob.objects.set_job_to_analyzing(job.id)
+
+        scraping_data = (
+            job.results if isinstance(job.results, Sequence) else [job.results]
+        )
+        analysis_prompt = gemini_prompt.build("USER", scraping_data)
+
+        ScrapingJob.objects.save_analysis_prompt(job.id, analysis_prompt)
+
+        model = ChatGoogleGenerativeAI(
+            model=settings.GOOGLE_GEMINI_MODEL_IDENTIFIER, temperature=0.7
+        )
+
+        agent = create_agent(
+            model=model,
+            system_prompt=gemini_prompt.build("SYSTEM"),
+            response_format=ProviderStrategy(SEOReportSchema),
+        )
+
+        result = agent.invoke({"messages": [HumanMessage(content=analysis_prompt)]})
+
+        ScrapingJob.objects.save_seo_report(job.id, result["structured_reponse"])
+
+        ScrapingJob.objects.set_job_to_completed(job.id)
+
+    except ScrapingJob.DoesNotExist:
+        logger.error(f"No ScrapingJob found for given ID: {job_id}")
+
+    except Exception as e:
+        async_to_sync(ScrapingJob.objects.set_job_to_failed)(job_id, str(e))
+        logger.error(f"ScarpingJob {job_id} marked as failed due to analysis error")

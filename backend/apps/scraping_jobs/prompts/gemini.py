@@ -136,3 +136,6 @@ class GeminiPrompt(BasePrompt):
             raise ValueError("scraping_data is required when prmpt_type='USER'.")
         else:
             return self._clean(self.USER_TEMPLATE.format(scraping_data=scraping_data))
+
+
+gemini_prompt = GeminiPrompt()
