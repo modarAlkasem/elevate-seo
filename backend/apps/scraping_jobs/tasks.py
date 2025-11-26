@@ -13,6 +13,7 @@ from langchain.agents.structured_output import ProviderStrategy
 from langchain.messages import HumanMessage
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from pydantic import ValidationError
 
 # App Imports
 from .models import ScrapingJob
@@ -105,6 +106,20 @@ async def analyze_scraped_data(self, job_id: str):
 
     except ScrapingJob.DoesNotExist:
         logger.error(f"No ScrapingJob found for given ID: {job_id}")
+        event_data = {
+            "type": "job_status_update",
+            "data": {
+                "status": ScrapingJobStatusChoices.FAILED.value,
+                "job_id": job_id,
+            },
+            "message": "Analyzing ScrapingJob has been failed",
+        }
+        async_to_sync(channel_layer.group_send)(f"job_{job_id}", event_data)
+
+    except ValidationError as e:
+        logger.error(
+            "SEO report's schema validation falied", extra={"errors": e.errors()}
+        )
         event_data = {
             "type": "job_status_update",
             "data": {
