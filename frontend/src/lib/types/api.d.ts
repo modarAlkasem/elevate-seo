@@ -36,3 +36,10 @@ interface APIUser {
   created_at: string;
   updated_at: string;
 }
+
+type ScrapingJobStatus =
+  | "PENDING"
+  | "RUNNING"
+  | "ANALYZING"
+  | "COMPLETED"
+  | "FAILED";
