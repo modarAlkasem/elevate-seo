@@ -3,8 +3,6 @@ export const scrapingJobKeys = {
   list: () => [...scrapingJobKeys.all, "list"] as const,
   detail: (id: string) => [...scrapingJobKeys.all, "detail", id] as const,
 
-  mutations: {
-    create: ["create-scraping-job"] as const,
-    delete: (id: string) => ["delete-scraping-job", id] as const,
-  },
+  create: () => [...scrapingJobKeys.all, "create"] as const,
+  delete: (id: string) => [...scrapingJobKeys.all, "delete", id] as const,
 };
