@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { Loader2, FileText, Plus, Trash2, TrendingUp } from "lucide-react";
@@ -20,6 +20,7 @@ import { formateDate, getSpinnerColor } from "@/lib/status-utils";
 import { getScrapingJobs } from "@/lib/api/scrapingJob/fetchers";
 import { scrapingJobKeys } from "@/lib/query-keys";
 import type { GetScrapingJobsResponse } from "@/lib/api/scrapingJob/types";
+import { ScrapingJobStatusWebSocket } from "@/lib/websocket/scraping-job-status-websocket";
 
 export const ReportsTable = () => {
   const { data, isPending, isSuccess, error, isError } = useQuery({
@@ -28,6 +29,15 @@ export const ReportsTable = () => {
   });
 
   const [deletingJobId, setDeletingJobId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const ws = new ScrapingJobStatusWebSocket();
+
+    ws.connect();
+
+    return () => ws.disconnect();
+  }, []);
+
   const router = useRouter();
 
   if (!isPending) {
