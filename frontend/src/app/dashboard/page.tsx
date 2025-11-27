@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,14 +15,25 @@ import { CountrySelector } from "@/components/country-selector";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Sparkles, Plus, BarChart3 } from "lucide-react";
 import { ReportsTable } from "@/components/reports-table";
+import { createScrapingJob } from "@/lib/api/scrapingJob/fetchers";
+import { scrapingJobKeys } from "@/lib/query-keys";
 
 const DashboardPage = () => {
   const [prompt, setPrompt] = useState("");
   const [country, setCountry] = useState("US");
-  const [isLoading, setIsLoading] = useState(false);
-  const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: scrapingJobKeys.create(),
+    mutationFn: createScrapingJob,
+    retry: 3,
+  });
+
+  const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    await mutateAsync({ prompt, country_code: country });
   };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -63,14 +75,14 @@ const DashboardPage = () => {
                       onChange={(event) => setPrompt(event.target.value)}
                       placeholder="Enter a Name / Business / Product / Website etc."
                       className="pl-14 h-14 text-base border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-sm w-full"
-                      disabled={isLoading}
+                      disabled={isPending}
                     />
                   </div>
 
                   <CountrySelector
                     value={country}
                     onValueChange={setCountry}
-                    disabled={isLoading}
+                    disabled={isPending}
                   />
 
                   <div>
@@ -78,9 +90,9 @@ const DashboardPage = () => {
                       type="submit"
                       size="lg"
                       className="h-14 px-6 md:px-8 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 border-0 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 transition-all duration-300 group font-semibold w-full md:w-auto"
-                      disabled={isLoading || !prompt.trim()}
+                      disabled={isPending || !prompt.trim()}
                     >
-                      {isLoading ? (
+                      {isPending ? (
                         <>
                           <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3" />
                           <span className="hidden lg:inline">
