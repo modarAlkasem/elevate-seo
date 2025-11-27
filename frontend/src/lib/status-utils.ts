@@ -71,8 +71,8 @@ export const getStatusConfig = (status: ScrapingJobStatus): StatusConfig => {
   return config;
 };
 
-export const formateDate = (timestamp: number): string => {
-  return new Date(timestamp).toLocaleDateString("en-US", {
+export const formateDate = (date: string): string => {
+  return new Date(date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "2-digit",
