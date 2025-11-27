@@ -43,3 +43,17 @@ type ScrapingJobStatus =
   | "ANALYZING"
   | "COMPLETED"
   | "FAILED";
+
+interface ScrapingJob {
+  id: string;
+  user: number;
+  status: ScrapingJobStatus;
+  original_prompt?: string;
+  analysis_prompt?: string;
+  snapshot_id: string;
+  results?: Array;
+  seo_report?: Object;
+  error?: string;
+  completed_at?: string;
+  created_at: string;
+}
