@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/card";
 import { CountrySelector } from "@/components/country-selector";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Sparkles, Plus } from "lucide-react";
+import { FileText, Sparkles, Plus, BarChart3 } from "lucide-react";
+import { ReportsTable } from "@/components/reports-table";
 
 const DashboardPage = () => {
   const [prompt, setPrompt] = useState("");
@@ -117,6 +118,23 @@ const DashboardPage = () => {
                   </div>
                 </div>
               </form>
+            </CardContent>
+          </Card>
+
+          {/** Reports Section */}
+          <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-primary" />
+                <CardTitle className="text-2xl"> Recent Reports</CardTitle>
+              </div>
+              <CardDescription>
+                {" "}
+                Track the progress of your SEO analysis reports
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ReportsTable />
             </CardContent>
           </Card>
         </div>
