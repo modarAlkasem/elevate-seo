@@ -24,7 +24,7 @@ export class ScrapingJobStatusWebSocket {
     new Promise(async (resolve, reject) => {
       const session = await getSession();
 
-      const webSocketUrl = `${process.env.NEXT_PUBLIC_BASE_WEBSOCKET_URL}/scraping-jobs/?token=${session?.access}`;
+      const webSocketUrl = `${process.env.NEXT_PUBLIC_BASE_WEBSOCKET_URL}/scraping-jobs/status/?token=${session?.access}`;
 
       this.ws = new WebSocket(webSocketUrl);
 
