@@ -14,7 +14,7 @@ interface ScrapingJobStatusUpdateEventPayload {
   message?: string;
 }
 
-class ScrapingJobStatusWebSocket {
+export class ScrapingJobStatusWebSocket {
   private ws: WebSocket | null = null;
   private reconnectAttempts: number = 0;
   private maxReconnectAttempts: number = 5;
@@ -24,7 +24,7 @@ class ScrapingJobStatusWebSocket {
     new Promise(async (resolve, reject) => {
       const session = await getSession();
 
-      const webSocketUrl = `${process.env.NEXT_PUBLIC_BASE_WEBSOCKET_URL}/scraping-jobs/?token=${session?.access}`;
+      const webSocketUrl = `${process.env.NEXT_PUBLIC_BASE_WEBSOCKET_URL}/scraping-jobs/status/?token=${session?.access}`;
 
       this.ws = new WebSocket(webSocketUrl);
 
@@ -69,7 +69,10 @@ class ScrapingJobStatusWebSocket {
           `🔌 ScrapingJobStatusWebSocket connection closed with code: ${event.code}`
         );
 
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        if (
+          event.code !== 1000 &&
+          this.reconnectAttempts < this.maxReconnectAttempts
+        ) {
           this.reconnectAttempts++;
 
           setTimeout(() => this.connect(), this.reconnectDelay);
@@ -77,6 +80,9 @@ class ScrapingJobStatusWebSocket {
       };
     });
 
+  public disconnect = () => {
+    if (this.ws) this.ws.close(1000, "Client disconnected");
+  };
   public isConnected = () =>
     this.ws !== null && this.ws.readyState === WebSocket.OPEN;
 }

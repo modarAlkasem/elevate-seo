@@ -6,7 +6,7 @@ from rest_framework.routers import DefaultRouter
 
 # App Imports
 from .views import BrightDataWebhookAPIView, ScrapingJobViewSet
-from .consumers import ScrapingJoStatusWebsocketConsumer
+from .consumers import ScrapingJobsStatusWebsocketConsumer
 
 
 router = DefaultRouter()
@@ -18,9 +18,9 @@ webhook_urlpatterns = [
 ]
 
 websocket_patterns = [
-    re_path(
-        r"^ws/scraping-jobs/(?P<job_id>[\w-]+)/$",
-        ScrapingJoStatusWebsocketConsumer.as_asgi(),
+    path(
+        "ws/scraping-jobs/status/",
+        ScrapingJobsStatusWebsocketConsumer.as_asgi(),
     )
 ]
 

@@ -40,6 +40,7 @@ async def analyze_scraped_data(self, job_id: str):
     event_data: ScrapingJoStatus
     try:
         job: ScrapingJob = ScrapingJob.objects.get(id=job_id)
+        user = job.user
 
         if not job.results or len(job.results) == 0:
             error_message = "No scraping data available for scraping job${0}"
@@ -58,7 +59,9 @@ async def analyze_scraped_data(self, job_id: str):
                 },
                 "message": "Analyzing ScrapingJob has been failed",
             }
-            async_to_sync(channel_layer.group_send)(f"job_{job_id}", event_data)
+            async_to_sync(channel_layer.group_send)(
+                f"user_{user.id}_jobs_status", event_data
+            )
 
         ScrapingJob.objects.set_job_to_analyzing(job.id)
 
@@ -70,7 +73,9 @@ async def analyze_scraped_data(self, job_id: str):
             },
             "message": "ScrapingJob Analysis has been started",
         }
-        async_to_sync(channel_layer.group_send)(f"job_{job_id}", event_data)
+        async_to_sync(channel_layer.group_send)(
+            f"user_{user.id}_jobs_status", event_data
+        )
 
         scraping_data = (
             job.results if isinstance(job.results, Sequence) else [job.results]
@@ -102,7 +107,9 @@ async def analyze_scraped_data(self, job_id: str):
             },
             "message": "ScrapingJob Analysis has been completed successfully",
         }
-        async_to_sync(channel_layer.group_send)(f"job_{job_id}", event_data)
+        async_to_sync(channel_layer.group_send)(
+            f"user_{user.id}_jobs_status", event_data
+        )
 
     except ScrapingJob.DoesNotExist:
         logger.error(f"No ScrapingJob found for given ID: {job_id}")
@@ -114,7 +121,9 @@ async def analyze_scraped_data(self, job_id: str):
             },
             "message": "Analyzing ScrapingJob has been failed",
         }
-        async_to_sync(channel_layer.group_send)(f"job_{job_id}", event_data)
+        async_to_sync(channel_layer.group_send)(
+            f"user_{user.id}_jobs_status", event_data
+        )
 
     except ValidationError as e:
         logger.error(
@@ -128,7 +137,9 @@ async def analyze_scraped_data(self, job_id: str):
             },
             "message": "Analyzing ScrapingJob has been failed",
         }
-        async_to_sync(channel_layer.group_send)(f"job_{job_id}", event_data)
+        async_to_sync(channel_layer.group_send)(
+            f"user_{user.id}_jobs_status", event_data
+        )
 
     except Exception as e:
         async_to_sync(ScrapingJob.objects.set_job_to_failed)(job_id, str(e))
@@ -143,4 +154,6 @@ async def analyze_scraped_data(self, job_id: str):
             },
             "message": "Analyzing ScrapingJob has been failed",
         }
-        async_to_sync(channel_layer.group_send)(f"job_{job_id}", event_data)
+        async_to_sync(channel_layer.group_send)(
+            f"user_{user.id}_jobs_status", event_data
+        )
