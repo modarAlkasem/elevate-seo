@@ -10,7 +10,7 @@ from .consumers import ScrapingJobsStatusWebsocketConsumer
 
 
 router = DefaultRouter()
-router.register("", ScrapingJobViewSet, basename="scraping-job")
+router.register("api/scraping-jobs", ScrapingJobViewSet, basename="scraping-job")
 
 
 webhook_urlpatterns = [
@@ -25,4 +25,4 @@ websocket_patterns = [
 ]
 
 
-urlpatterns = router.urls
+urlpatterns = router.urls + websocket_patterns

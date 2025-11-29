@@ -36,7 +36,7 @@ class ScrapingJobsStatusWebsocketConsumer(AsyncWebsocketConsumer):
 
         event_data: ScrapingJoStatus = {
             "type": "connection",
-            "message": f"Connected to Job ({job.id}) real time status updates",
+            "message": f"Connected to Scraping Jobs Status WebSocket for user {user.id}",
         }
         await self.send(text_data=json.dumps(event_data))
 
