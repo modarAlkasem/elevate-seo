@@ -38,7 +38,7 @@ class WebsocketJWTAuthentication(BaseMiddleware):
     async def _get_user(self, validated_token: AccessToken) -> User:
 
         try:
-            return await User.objects.aget(validated_token.payload.get("user_id"))
+            return await User.objects.aget(id=validated_token.payload.get("user_id"))
         except User.DoesNotExist:
             raise AuthenticationFailed("User not found")
 
