@@ -51,8 +51,12 @@ class ScrapingJobViewSet(ViewSet):
     async def list(self, request: Request) -> Response:
         user = request.user
         jobs, status_text, status_code = await ScrapingJobService.list(user.id)
+        response_data = None
 
-        response_data = ListScrapingJobModelSerializer(instance=jobs, many=True).data
+        if jobs:
+            response_data = ListScrapingJobModelSerializer(
+                instance=jobs, many=True
+            ).data
 
         return Response(
             data=response_data, status_text=status_text, status_code=status_code

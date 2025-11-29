@@ -152,11 +152,9 @@ class ScrapingJobService:
 
         try:
             jobs = await ScrapingJob.objects.aget_user_jobs(user_id)
-            response_data = ListScrapingJobModelSerializer(
-                instance=jobs, many=True
-            ).data
+
             return (
-                response_data,
+                jobs,
                 "SUCCESS",
                 status.HTTP_200_OK,
             )
