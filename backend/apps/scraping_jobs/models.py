@@ -284,7 +284,7 @@ class ScrapingJobQuerySet(models.QuerySet):
 
         return job
 
-    def get_user_jobs(self, user_id: int) -> Self:
+    async def aget_user_jobs(self, user_id: int) -> List[ScrapingJob]:
         """
         Return a queryset of ScrapingJob instances belonging to a specific user.
 
@@ -297,7 +297,7 @@ class ScrapingJobQuerySet(models.QuerySet):
             Self: A ScrapingJobQuerySet filtered to the specified user's jobs.
         """
 
-        jobs: List[ScrapingJob] = self.filter(user=user_id)
+        jobs: List[ScrapingJob] = [job async for job in self.filter(user=user_id)]
 
         for job in jobs:
             if job and job.seo_report:

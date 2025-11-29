@@ -1,10 +1,11 @@
 # Python Imports
-from typing import Optional
+from typing import Optional, Tuple, List
 from urllib.parse import quote
 import httpx
 import logging
 
 # REST Framework Imports
+from pydantic import ValidationError
 from rest_framework import status
 
 # Django Imports
@@ -15,7 +16,7 @@ from authentication.models import User
 
 
 # App Imports
-from ..serializers import ScrapingJobModelSerializer
+from ..serializers import ScrapingJobModelSerializer, ListScrapingJobModelSerializer
 from ..models import ScrapingJob
 from ..prompts.perplexity import perplexity_prompt as perplexity_prompt_obj
 
@@ -144,4 +145,39 @@ class ScrapingJobService:
                 error_msg,
                 "UNKNOWN_ERROR",
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    @staticmethod
+    async def list(user_id: int) -> Tuple[Optional[List[ScrapingJob]], str, int]:
+
+        try:
+            jobs = await ScrapingJob.objects.aget_user_jobs(user_id)
+            return (
+                jobs,
+                "SUCCESS",
+                status.HTTP_200_OK,
+            )
+
+        except ValidationError as e:
+            logger.error(
+                f"SEO report validation error when fetching jobs for user: {user_id}",
+                extra={"validation_errors": e.errors()},
+            )
+
+            return (
+                None,
+                "BAD_REQUEST",
+                status.HTTP_400_BAD_REQUEST,
+            )
+
+        except Exception as e:
+            logger.error(
+                f"Error when fetching jobs for user: {user_id}",
+                extra={"error_detail": str(e)},
+            )
+
+            return (
+                None,
+                "BAD_REQUEST",
+                status.HTTP_400_BAD_REQUEST,
             )

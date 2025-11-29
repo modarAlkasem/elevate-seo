@@ -19,3 +19,10 @@ class ScrapingJobModelSerializer(AsyncModelSerializer):
     class Meta:
         model = ScrapingJob
         fields = "__all__"
+
+
+class ListScrapingJobModelSerializer(ScrapingJobModelSerializer):
+
+    class Meta(ScrapingJobModelSerializer.Meta):
+        exclude = ("results", "seo_report", "error")
+        fields = None

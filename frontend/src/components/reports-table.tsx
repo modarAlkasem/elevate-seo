@@ -40,7 +40,7 @@ export const ReportsTable = () => {
 
   const router = useRouter();
 
-  if (!isPending) {
+  if (isPending) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center">
         <div className="p-3 bg-muted/50 rounded-full mb-4">
@@ -54,7 +54,7 @@ export const ReportsTable = () => {
     );
   }
 
-  if ((data as unknown as GetScrapingJobsResponse).length === 0) {
+  if (data && (data as unknown as GetScrapingJobsResponse).length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center">
         <div className="p-4 bg-muted/50 rounded-full mb-6">

@@ -8,11 +8,12 @@ from adrf.views import APIView
 from adrf.viewsets import ViewSet
 
 # Project Imports
+from scraping_jobs.models import ScrapingJob
 from core.responses import Response
 
 # App Imports
 from .services import ScrapingJobService, BrightDataWebhookService
-from .serializers import ScrapingJobCreationSerializer
+from .serializers import ScrapingJobCreationSerializer, ListScrapingJobModelSerializer
 
 
 class ScrapingJobViewSet(ViewSet):
@@ -42,6 +43,16 @@ class ScrapingJobViewSet(ViewSet):
                 None,
                 status.HTTP_400_BAD_REQUEST,
             )
+
+        return Response(
+            data=response_data, status_text=status_text, status_code=status_code
+        )
+
+    async def list(self, request: Request) -> Response:
+        user = request.user
+        jobs, status_text, status_code = await ScrapingJobService.list(user.id)
+
+        response_data = ListScrapingJobModelSerializer(instance=jobs, many=True).data
 
         return Response(
             data=response_data, status_text=status_text, status_code=status_code
