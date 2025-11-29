@@ -1,6 +1,4 @@
 # Python Imports
-import hmac
-import hashlib
 import logging
 from typing import Tuple, Optional
 
@@ -17,7 +15,7 @@ from ..models import ScrapingJob
 from ..tasks import analyze_scraped_data
 
 
-logger = logging.Logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class BrightDataWebhookService:
@@ -26,12 +24,10 @@ class BrightDataWebhookService:
     async def handle(request: Request) -> Tuple[Optional[str], str, int]:
 
         data = request.data
-        signature = request.headers.get("X-BrightData-Signature")
-        secret: str = settings.BRIGHTDATA_WEBHOOK_SECRET
+        auth_header = request.headers.get("Authorization", "")
+        expected_auth = f"Bearer {settings.BRIGHTDATA_WEBHOOK_SECRET}"
 
-        computed = hmac.new(secret.encode(), request.body, hashlib.sha256).hexdigest()
-
-        if not hmac.compare_digest(computed or "", signature):
+        if auth_header != expected_auth:
             logger.error("Unauthorized BrightData webhook access", extra={"data": data})
             return (
                 "Unauthorized to do this action",
