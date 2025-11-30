@@ -14,7 +14,11 @@ router.register("api/scraping-jobs", ScrapingJobViewSet, basename="scraping-job"
 
 
 webhook_urlpatterns = [
-    path("brightdata/", BrightDataWebhookAPIView.as_view(), name="brightdata-webhook")
+    path(
+        "webhooks/brightdata/",
+        BrightDataWebhookAPIView.as_view(),
+        name="brightdata-webhook",
+    )
 ]
 
 websocket_patterns = [
@@ -25,4 +29,4 @@ websocket_patterns = [
 ]
 
 
-urlpatterns = router.urls + websocket_patterns
+urlpatterns = router.urls + webhook_urlpatterns

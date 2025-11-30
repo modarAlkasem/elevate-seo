@@ -50,7 +50,7 @@ class ScrapingJobService:
             f"&uncompressed_webhook=true"
             f"&format=json"
             f"&auth_header=Bearer {settings.BRIGHTDATA_WEBHOOK_SECRET}"
-            f"&notify={encoded_webhook_url}"
+            f"&endpoint={encoded_webhook_url}"
             f"&include_errors=true"
         )
 
@@ -82,6 +82,7 @@ class ScrapingJobService:
         }
 
         try:
+
             async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(url, json=payload, headers=headers)
 
@@ -152,11 +153,9 @@ class ScrapingJobService:
 
         try:
             jobs = await ScrapingJob.objects.aget_user_jobs(user_id)
-            response_data = ListScrapingJobModelSerializer(
-                instance=jobs, many=True
-            ).data
+
             return (
-                response_data,
+                jobs,
                 "SUCCESS",
                 status.HTTP_200_OK,
             )

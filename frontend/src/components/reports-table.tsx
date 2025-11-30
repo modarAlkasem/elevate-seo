@@ -54,7 +54,12 @@ export const ReportsTable = () => {
     );
   }
 
-  if (data && (data as unknown as GetScrapingJobsResponse).length === 0) {
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  if (data?.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center">
         <div className="p-4 bg-muted/50 rounded-full mb-6">
@@ -106,7 +111,7 @@ export const ReportsTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {(data as unknown as GetScrapingJobsResponse).map((job) => (
+            {data?.map((job) => (
               <TableRow
                 key={job.id}
                 className="cursor-pointer hover:muted/30 transition-colors border-b border-border/30 last:border-b-0"
@@ -181,21 +186,13 @@ export const ReportsTable = () => {
             <TrendingUp className="w-4 h-4" />
             <span>
               {" "}
-              {(data as unknown as GetScrapingJobsResponse).length} total report{" "}
-              {(data as unknown as GetScrapingJobsResponse).length !== 1
-                ? "s"
-                : ""}
+              {data?.length} total report {data?.length !== 1 ? "s" : ""}
             </span>
           </div>
-          {(data as unknown as GetScrapingJobsResponse).filter(
-            (job) => job.status === "COMPLETED"
-          ).length > 0 && (
+          {data?.filter((job) => job.status === "COMPLETED").length > 0 && (
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span>
-                {" "}
-                {(data as unknown as GetScrapingJobsResponse).length} completed
-              </span>
+              <span> {data?.length} completed</span>
             </div>
           )}
         </div>
