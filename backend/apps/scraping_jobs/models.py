@@ -278,7 +278,9 @@ class ScrapingJobQuerySet(models.QuerySet):
         Returns:
             Optional[ScrapingJob]: The ScrapingJob instance if found, otherwise None.
         """
-        job: ScrapingJob = self.filter(snapshot_id=snapshot_id, user=user_id).afirst()
+        job: ScrapingJob = await self.filter(
+            snapshot_id=snapshot_id, user=user_id
+        ).afirst()
         if job and job.seo_report:
             SEOReportSchema(**job.seo_report)
 

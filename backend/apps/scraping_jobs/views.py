@@ -66,7 +66,9 @@ class ScrapingJobViewSet(ViewSet):
             data=response_data, status_text=status_text, status_code=status_code
         )
 
-    @action(methods=["GET"], detail=True, url_path="by-snapshot")
+    @action(
+        methods=["GET"], detail=False, url_path=r"by-snapshot/(?P<snapshot_id>[^/.]+)"
+    )
     async def retrieve_by_snapshot_id(
         self, request: Request, snapshot_id: str
     ) -> Response:
