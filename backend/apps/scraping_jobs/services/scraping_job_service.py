@@ -183,3 +183,42 @@ class ScrapingJobService:
                 "BAD_REQUEST",
                 status.HTTP_400_BAD_REQUEST,
             )
+
+    @staticmethod
+    async def retrieve_by_snapshot_id(
+        user_id: int, snapshot_id: str
+    ) -> Tuple[Optional[ScrapingJob], str, int]:
+
+        try:
+            job = await ScrapingJob.objects.aget_job_by_snapshot_id(
+                user_id, snapshot_id
+            )
+
+            if not job:
+                logger.error(
+                    f"No scraping job found with given snapshot ID ({snapshot_id}) for user ({user_id})",
+                )
+
+                return (
+                    None,
+                    "NOT_FOUND",
+                    status.HTTP_404_NOT_FOUND,
+                )
+
+            return (
+                job,
+                "SUCCESS",
+                status.HTTP_200_OK,
+            )
+
+        except ValidationError as e:
+            logger.error(
+                f"SEO report validation error when fetching job with given snapshot ID ({snapshot_id}) for user ({user_id})",
+                extra={"validation_errors": e.errors()},
+            )
+
+            return (
+                None,
+                "BAD_REQUEST",
+                status.HTTP_400_BAD_REQUEST,
+            )
