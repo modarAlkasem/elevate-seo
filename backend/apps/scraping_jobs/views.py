@@ -1,3 +1,6 @@
+# Django Imports
+from django.views.decorators.csrf import csrf_exempt
+
 # REST Framework Imports
 from rest_framework.request import Request
 from rest_framework.serializers import ValidationError
@@ -51,12 +54,12 @@ class ScrapingJobViewSet(ViewSet):
     async def list(self, request: Request) -> Response:
         user = request.user
         jobs, status_text, status_code = await ScrapingJobService.list(user.id)
-        response_data = None
+        response_data = []
 
         if jobs:
-            response_data = ListScrapingJobModelSerializer(
+            response_data = await ListScrapingJobModelSerializer(
                 instance=jobs, many=True
-            ).data
+            ).adata
 
         return Response(
             data=response_data, status_text=status_text, status_code=status_code
@@ -67,6 +70,7 @@ class BrightDataWebhookAPIView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @csrf_exempt
     async def post(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         response_data, status_text, status_code = await BrightDataWebhookService.handle(
             request
