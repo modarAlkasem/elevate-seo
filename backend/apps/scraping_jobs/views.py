@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.request import Request
 from rest_framework.serializers import ValidationError
 from rest_framework import status
+from rest_framework.decorators import action
 
 # Async REST Framework Imports
 from adrf.views import APIView
@@ -64,6 +65,20 @@ class ScrapingJobViewSet(ViewSet):
         return Response(
             data=response_data, status_text=status_text, status_code=status_code
         )
+
+    @action(methods=["GET"], detail=True, url_path="by-snapshot")
+    async def retrieve_by_snapshot_id(
+        self, request: Request, snapshot_id: str
+    ) -> Response:
+        user = request.user
+        job, status_text, status_code = (
+            await ScrapingJobService.retrieve_by_snapshot_id(user.id, snapshot_id)
+        )
+
+        if job:
+            job = await ListScrapingJobModelSerializer(instance=job).adata
+
+        return Response(data=job, status_text=status_text, status_code=status_code)
 
 
 class BrightDataWebhookAPIView(APIView):
