@@ -29,7 +29,7 @@ export const getStatusConfig = (status: ScrapingJobStatus): StatusConfig => {
 
     case "RUNNING":
       config = {
-        label: "Pending",
+        label: "Scraping",
         icon: HardDriveDownload,
         variant: "secondary",
         className:
@@ -40,7 +40,7 @@ export const getStatusConfig = (status: ScrapingJobStatus): StatusConfig => {
     case "ANALYZING":
       config = {
         label: "Analyzing",
-        icon: HardDriveDownload,
+        icon: BarChart3,
         variant: "secondary",
         className:
           "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800 dark:hover:bg-purple-900/30",
