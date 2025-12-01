@@ -100,3 +100,97 @@ export const getSpinnerColor = (status: ScrapingJobStatus): string => {
 
   return spinnerColor;
 };
+
+export const getProgressPercentage = (status: ScrapingJobStatus): string => {
+  let progressPercentage = null;
+
+  switch (status) {
+    case "PENDING":
+      progressPercentage = "0%";
+      break;
+
+    case "RUNNING":
+      progressPercentage = "25%";
+      break;
+
+    case "ANALYZING":
+      progressPercentage = "75%";
+      break;
+
+    case "COMPLETED":
+      progressPercentage = "100%";
+      break;
+
+    default:
+      progressPercentage = "0%";
+  }
+
+  return progressPercentage;
+};
+
+export const getProgressBarStyle = (status: ScrapingJobStatus): string => {
+  let progressBarStyle = null;
+
+  switch (status) {
+    case "PENDING":
+      progressBarStyle = "bg-yellow-500 w-0";
+      break;
+
+    case "RUNNING":
+      progressBarStyle = "bg-blue-500 w-1/4";
+      break;
+
+    case "ANALYZING":
+      progressBarStyle = "bg-purple-500 w-3/4";
+      break;
+
+    case "COMPLETED":
+      progressBarStyle = "bg-green-500 w-full";
+      break;
+
+    default:
+      progressBarStyle = "bg-red-500 w-full";
+      break;
+  }
+
+  return progressBarStyle;
+};
+
+export const getReportTitle = (status: ScrapingJobStatus): string => {
+  switch (status) {
+    case "COMPLETED":
+      return "Report Ready!";
+
+    case "FAILED":
+      return "Report Failed";
+
+    default:
+      return "Generating Report";
+  }
+};
+
+export const getStatusMessage = (status: ScrapingJobStatus): string => {
+  switch (status) {
+    case "PENDING":
+      return "Your report is queued and will start proccessing shortly.";
+
+    case "RUNNING":
+      return "We're scraping data from search engines. This may take a few minutes.";
+
+    case "ANALYZING":
+      return "We're analyzing your data and generate AI insights. This may take a few more minutes";
+
+    case "COMPLETED":
+      return "Your report is ready! You can now view and download your SEO insights.";
+
+    case "FAILED":
+      return "There was an error processing your report. Please try again.";
+
+    default:
+      return "Unknown status";
+  }
+};
+
+export function formatDateTime(timestamp: string): string {
+  return new Date(timestamp).toLocaleString();
+}
