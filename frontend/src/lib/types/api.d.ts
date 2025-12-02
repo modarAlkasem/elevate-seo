@@ -1,3 +1,5 @@
+import type { SeoReport } from "../seo-schema";
+
 type JsonPrimitives =
   | string
   | number
@@ -52,7 +54,7 @@ interface ScrapingJob {
   analysis_prompt?: string;
   snapshot_id: string;
   results?: Array;
-  seo_report?: Object;
+  seo_report?: SeoReport;
   error?: string;
   completed_at?: string;
   created_at: string;

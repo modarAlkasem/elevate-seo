@@ -6,6 +6,7 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 
 import { getScrapingJobBySnapshotID } from "@/lib/api/scrapingJob/fetchers";
 import { scrapingJobKeys } from "@/lib/query-keys";
+import { SummaryHeader } from "./ui";
 
 interface ReportSummaryPageProps {
   params: Promise<{
@@ -14,11 +15,11 @@ interface ReportSummaryPageProps {
 }
 
 export default function ReportSummaryPage({ params }: ReportSummaryPageProps) {
-  const { id } = use(params);
-  const { data, isPending, error } = useQuery({
-    queryKey: scrapingJobKeys.bySnapshot(id),
-    queryFn: () => getScrapingJobBySnapshotID({ snapshot_id: id }),
-  });
+  // const { id } = use(params);
+  // const { data, isPending, error } = useQuery({
+  //   queryKey: scrapingJobKeys.bySnapshot(id),
+  //   queryFn: () => getScrapingJobBySnapshotID({ snapshot_id: id }),
+  // });
 
   //   if (isPending) {
   //     return (
@@ -47,7 +48,7 @@ export default function ReportSummaryPage({ params }: ReportSummaryPageProps) {
 
   return (
     <div className="min-h-screen bg-gradient-t-br from-background via-background to-muted/20">
-      {/* <SummaryHeader seoReport={data.seo_report} /> */}
+      <SummaryHeader />
     </div>
   );
 }
