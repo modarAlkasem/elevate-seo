@@ -6,7 +6,7 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 
 import { getScrapingJobBySnapshotID } from "@/lib/api/scrapingJob/fetchers";
 import { scrapingJobKeys } from "@/lib/query-keys";
-import { SummaryHeader } from "./ui";
+import { OverallScoreCard, SummaryHeader } from "./ui";
 
 interface ReportSummaryPageProps {
   params: Promise<{
@@ -49,6 +49,10 @@ export default function ReportSummaryPage({ params }: ReportSummaryPageProps) {
   return (
     <div className="min-h-screen bg-gradient-t-br from-background via-background to-muted/20">
       <SummaryHeader />
+
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 space-y-8 lg:space-y-12">
+        <OverallScoreCard />
+      </div>
     </div>
   );
 }
