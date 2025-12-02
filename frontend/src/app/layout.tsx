@@ -16,7 +16,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ElevateSEO - AI Powered SEO Optimization Platform",
+  title: {
+    template: "ElevateSEO - %s",
+    default: "ElevateSEO - AI Powered SEO Optimization Platform",
+  },
   description:
     "Boost your website, product, YT channel, etc. rankings with ElevateSEO - an AI-driven SEO optimization tool that analyze your site, competitors, keywords to deliver actionable insights, reports, and strategies for better visibility and growth.",
   keywords: [
