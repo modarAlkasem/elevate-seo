@@ -17,4 +17,4 @@ export type GetScrapingJobBySnapshotIDPayload = {
   snapshot_id: string;
 };
 
-export type GetScrapingJobBySnapshotIDResponse = DataTableScrpingJob;
+export type GetScrapingJobBySnapshotIDResponse = ScrapingJob;
