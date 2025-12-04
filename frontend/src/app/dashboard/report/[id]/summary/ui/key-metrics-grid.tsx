@@ -6,11 +6,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { SeoReport } from "@/lib/seo-schema";
 
-interface OverallScoreCardProps {
+interface KeyMetricsGriddProps {
   seoReport?: SeoReport;
 }
 
-export const KeyMetricsGrid = ({ seoReport }: OverallScoreCardProps) => {
+export const KeyMetricsGrid = ({ seoReport }: KeyMetricsGriddProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
       {/** Keywords Found */}
