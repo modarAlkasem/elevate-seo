@@ -11,8 +11,9 @@ import {
   OverallScoreCard,
   SourceDistributionChart,
   SummaryHeader,
+  CompetitorStrengthCard,
+  RecommendationsCard,
 } from "./ui";
-import { CompetitorStrengthCard } from "./ui/competitor-strength-card";
 
 interface ReportSummaryPageProps {
   params: Promise<{
@@ -64,6 +65,8 @@ export default function ReportSummaryPage({ params }: ReportSummaryPageProps) {
           <SourceDistributionChart />
           <CompetitorStrengthCard />
         </div>
+
+        <RecommendationsCard />
       </div>
     </div>
   );
