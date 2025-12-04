@@ -6,7 +6,14 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 
 import { getScrapingJobBySnapshotID } from "@/lib/api/scrapingJob/fetchers";
 import { scrapingJobKeys } from "@/lib/query-keys";
-import { KeyMetricsGrid, OverallScoreCard, SummaryHeader } from "./ui";
+import {
+  KeyMetricsGrid,
+  OverallScoreCard,
+  SourceDistributionChart,
+  SummaryHeader,
+  CompetitorStrengthCard,
+  RecommendationsCard,
+} from "./ui";
 
 interface ReportSummaryPageProps {
   params: Promise<{
@@ -53,6 +60,13 @@ export default function ReportSummaryPage({ params }: ReportSummaryPageProps) {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 space-y-8 lg:space-y-12">
         <OverallScoreCard />
         <KeyMetricsGrid />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
+          <SourceDistributionChart />
+          <CompetitorStrengthCard />
+        </div>
+
+        <RecommendationsCard />
       </div>
     </div>
   );
