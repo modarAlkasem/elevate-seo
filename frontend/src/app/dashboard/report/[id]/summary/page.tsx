@@ -12,6 +12,7 @@ import {
   SourceDistributionChart,
   SummaryHeader,
 } from "./ui";
+import { CompetitorStrengthCard } from "./ui/competitor-strength-card";
 
 interface ReportSummaryPageProps {
   params: Promise<{
@@ -61,6 +62,7 @@ export default function ReportSummaryPage({ params }: ReportSummaryPageProps) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
           <SourceDistributionChart />
+          <CompetitorStrengthCard />
         </div>
       </div>
     </div>
