@@ -143,7 +143,7 @@ export const seoReportSchema = z.object({
     content_themes: z.array(
       z.object({
         theme: z.string(),
-        frequencey: z.number(),
+        frequency: z.number(),
         intent: z
           .enum(["informational", "navigational", "transactional"])
           .optional(),
