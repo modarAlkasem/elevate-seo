@@ -5,3 +5,5 @@ export { SourceDistributionChart } from "./source-distribution-chart";
 export { CompetitorStrengthCard } from "./competitor-strength-card";
 export { RecommendationsCard } from "./recommendations-card";
 export { KeywordAnalysisGrid } from "./keyword-analysis-grid";
+export { KeyInsightsGrid } from "./key-insights-grid";
+export { AdditionalAnalysisGrid } from "./additional-analysis-grid";
