@@ -13,6 +13,7 @@ import {
   SummaryHeader,
   CompetitorStrengthCard,
   RecommendationsCard,
+  KeywordAnalysisGrid,
 } from "./ui";
 
 interface ReportSummaryPageProps {
@@ -67,6 +68,7 @@ export default function ReportSummaryPage({ params }: ReportSummaryPageProps) {
         </div>
 
         <RecommendationsCard />
+        <KeywordAnalysisGrid />
       </div>
     </div>
   );
