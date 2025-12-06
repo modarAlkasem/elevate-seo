@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,9 +23,14 @@ const DashboardPage = () => {
   const [prompt, setPrompt] = useState("");
   const [country, setCountry] = useState("US");
 
+  const router = useRouter();
+
   const { mutateAsync, isPending } = useMutation({
     mutationKey: scrapingJobKeys.create(),
     mutationFn: createScrapingJob,
+    onSuccess: (data) => {
+      router.push(`./report/${data.snapshot_id}`);
+    },
     retry: 3,
   });
 
@@ -32,6 +38,7 @@ const DashboardPage = () => {
     e.preventDefault();
 
     await mutateAsync({ prompt, country_code: country });
+    router;
   };
 
   return (

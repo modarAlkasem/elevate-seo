@@ -1,17 +1,18 @@
 import { getSession } from "next-auth/react";
 
-import { client as queryClient } from "@/wrappers/query-client-wrapper";
-import { scrapingJobKeys } from "../query-keys";
-
 interface ScrapingJoStatusData {
   job_id: string;
   status: ScrapingJobStatus;
 }
 
-interface ScrapingJobStatusUpdateEventPayload {
-  type: "job_status_update";
-  data: ScrapingJoStatusData;
+export interface ScrapingJobStatusUpdateEventPayload {
+  type: "job_status_update" | "connection";
+  data?: ScrapingJoStatusData;
   message?: string;
+}
+
+export interface ScrapingJobStatusWSCallback {
+  (data: ScrapingJobStatusUpdateEventPayload): void | Promise<void>;
 }
 
 export class ScrapingJobStatusWebSocket {
@@ -19,6 +20,7 @@ export class ScrapingJobStatusWebSocket {
   private reconnectAttempts: number = 0;
   private maxReconnectAttempts: number = 5;
   private reconnectDelay: number = 2000;
+  private callbacks: ScrapingJobStatusWSCallback[] = [];
 
   public connect = async (): Promise<void> =>
     new Promise(async (resolve, reject) => {
@@ -42,18 +44,7 @@ export class ScrapingJobStatusWebSocket {
 
           console.log("📩 Received WebSocket message:", data);
 
-          queryClient.setQueryData(
-            scrapingJobKeys.list(),
-            (oldJobs: ScrapingJob[]) => {
-              if (!oldJobs) return oldJobs;
-
-              return oldJobs.map((job) =>
-                job.id === data.data.job_id
-                  ? { ...job, status: data.data.status }
-                  : job
-              );
-            }
-          );
+          this.callbacks.forEach(async (cb) => await cb(data));
         } catch (error) {
           console.error("❌ Error parsing WebSocket message:", error);
         }
@@ -79,6 +70,16 @@ export class ScrapingJobStatusWebSocket {
         }
       };
     });
+
+  public onJobsStatusUpdate = (
+    callback: ScrapingJobStatusWSCallback
+  ): (() => void) => {
+    this.callbacks.push(callback);
+
+    return () => {
+      this.callbacks = this.callbacks.filter((cb) => cb !== callback);
+    };
+  };
 
   public disconnect = () => {
     if (this.ws) this.ws.close(1000, "Client disconnected");
