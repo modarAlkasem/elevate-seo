@@ -19,6 +19,7 @@ from authentication.models import User
 from ..serializers import ScrapingJobModelSerializer, ListScrapingJobModelSerializer
 from ..models import ScrapingJob
 from ..prompts.perplexity import perplexity_prompt as perplexity_prompt_obj
+from ..tasks import analyze_scraped_data
 
 
 logger = logging.getLogger(__name__)
@@ -32,15 +33,47 @@ class StartBrightDataScrapingReturn(TypedDict):
 
 class ScrapingJobService:
 
-    @staticmethod
-    def retry_job(job_id: str, user: User):
-        pass
+    @classmethod
+    async def retry_job(cls, job_id: str, user: User):
+        retry_info = await ScrapingJob.objects.can_use_smart_retry(job_id, user.id)
+
+        job = await ScrapingJob.objects.get_job_by_id(job_id)
+        if retry_info.get("can_retry_analysis_only"):
+            await ScrapingJob.objects.reset_job_for_analyzing_retry(job.id)
+            analyze_scraped_data.delay(job_id)
+
+        elif not retry_info.get("has_scraping_data"):
+            bt_scraping_result = await cls.start_brightdata_scraping(job)
+
+            if (
+                not bt_scraping_result.get("success")
+                and bt_scraping_result.get("code")
+                == status.HTTP_500_INTERNAL_SERVER_ERROR
+            ):
+                return (
+                    bt_scraping_result.get("message"),
+                    "UNKNOWN_ERROR",
+                    status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+            snapshot_id = bt_scraping_result.get("snapshot_id")
+
+            await ScrapingJob.objects.update_job_with_snapshot_id(job.id, snapshot_id)
+
+        response_data = await ScrapingJobModelSerializer(instance=job).adata
+        return (
+            response_data,
+            "SUCCESS",
+            status.HTTP_200_OK,
+        )
 
     @staticmethod
     async def start_brightdata_scraping(
-        job: ScrapingJob, original_prompt: str, country_code: str
+        job: ScrapingJob, original_prompt: Optional[str], country_code: Optional[str]
     ) -> StartBrightDataScrapingReturn:
-        webhook_url = f"{settings.API_BASE_URL}{settings.BRIGHTDATA_WEBHOOK_PATH}?job-id={scraping_job.id}"
+        webhook_url = (
+            f"{settings.API_BASE_URL}{settings.BRIGHTDATA_WEBHOOK_PATH}?job-id={job.id}"
+        )
         encoded_webhook_url = quote(webhook_url, safe="")
 
         url = (
