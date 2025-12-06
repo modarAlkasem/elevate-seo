@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { Loader2, FileText, Plus, Trash2, TrendingUp } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   Table,
@@ -19,8 +18,8 @@ import { StatusBadge } from "./status-badge";
 import { formateDate, getSpinnerColor } from "@/lib/status-utils";
 import { getScrapingJobs } from "@/lib/api/scrapingJob/fetchers";
 import { scrapingJobKeys } from "@/lib/query-keys";
-import type { GetScrapingJobsResponse } from "@/lib/api/scrapingJob/types";
-import { ScrapingJobStatusWebSocket } from "@/lib/websocket/scraping-job-status-websocket";
+import { useScrapingJobsStatus } from "@/lib/websocket/hooks/use-scraping-jobs-status";
+import type { ScrapingJobStatusUpdateEventPayload } from "@/lib/websocket/scraping-job-status-websocket";
 
 export const ReportsTable = () => {
   const { data, isPending, isSuccess, error, isError } = useQuery({
@@ -30,15 +29,22 @@ export const ReportsTable = () => {
 
   const [deletingJobId, setDeletingJobId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const ws = new ScrapingJobStatusWebSocket();
+  const queryClient = useQueryClient();
+  useScrapingJobsStatus((data: ScrapingJobStatusUpdateEventPayload) => {
+    if (data.type === "job_status_update")
+      queryClient.setQueryData(
+        scrapingJobKeys.list(),
+        (oldJobs: ScrapingJob[]) => {
+          if (!oldJobs) return oldJobs;
 
-    ws.connect();
-
-    return () => ws.disconnect();
-  }, []);
-
-  const router = useRouter();
+          return oldJobs.map((job) =>
+            job.id === data?.data?.job_id
+              ? { ...job, status: data.data?.status }
+              : job
+          );
+        }
+      );
+  });
 
   if (isPending) {
     return (

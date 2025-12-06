@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
@@ -34,6 +34,9 @@ import {
   getProgressPercentage,
   formatDateTime,
 } from "@/lib/status-utils";
+import { ScrapingJobStatusWebSocket } from "@/lib/websocket/scraping-job-status-websocket";
+import { useScrapingJobsStatus } from "@/lib/websocket/hooks/use-scraping-jobs-status";
+import type { ScrapingJobStatusUpdateEventPayload } from "@/lib/websocket/scraping-job-status-websocket";
 
 const ReportPage = () => {
   const [id, setId] = useState<string | null>(null);
@@ -45,7 +48,7 @@ const ReportPage = () => {
 
   const snapshotId = useParams<{ id: string }>().id;
 
-  const { data, isPending, error } = useQuery({
+  const { data, isPending, error, refetch } = useQuery({
     queryKey: scrapingJobKeys.bySnapshot(snapshotId),
     queryFn: () => getScrapingJobBySnapshotID({ snapshot_id: snapshotId }),
   });
@@ -72,23 +75,15 @@ const ReportPage = () => {
     );
   }
 
-  const job: {
-    status: ScrapingJobStatus;
-    original_prompt: string;
-    created_at: string;
-    completed_at: string;
-    snapshot_id: string;
-    error: string;
-    results: {}[];
-  } = {
-    status: "FAILED",
-    original_prompt: "Google",
-    created_at: "2025-11-30 00:28:25.291901+00",
-    completed_at: "2025-11-30 00:28:25.291901+00",
-    snapshot_id: "sx234x_12s",
-    error: "Something went wrong",
-    results: [{}],
-  };
+  useScrapingJobsStatus(
+    async (event_data: ScrapingJobStatusUpdateEventPayload) => {
+      if (
+        event_data.type === "job_status_update" &&
+        (event_data.data?.job_id === event_data.data?.job_id) === data.id
+      )
+        await refetch();
+    }
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -109,22 +104,22 @@ const ReportPage = () => {
           <Card className="w-full">
             <CardHeader className="text-center">
               <div className="flex flex-col items-center justify-center mb-4">
-                {(job.status === "PENDING" ||
-                  job.status === "RUNNING" ||
-                  job.status === "ANALYZING") && (
+                {(data.status === "PENDING" ||
+                  data.status === "RUNNING" ||
+                  data.status === "ANALYZING") && (
                   <Loader2
                     className={`w-5 h-5 animate-spin mb-2 ${getSpinnerColor(
-                      job.status
+                      data.status
                     )}`}
                   />
                 )}
-                <StatusBadge status={job.status} showIcon={true} />
+                <StatusBadge status={data.status} showIcon={true} />
               </div>
               <CardTitle className="text-base">
-                {getReportTitle(job.status)}
+                {getReportTitle(data.status)}
               </CardTitle>
               <CardDescription className="text-base">
-                {getStatusMessage(job.status)}
+                {getStatusMessage(data.status)}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -134,14 +129,14 @@ const ReportPage = () => {
                   <span className="text-muted-foreground"> Progress</span>
                   <span className="font-medium">
                     {" "}
-                    {getProgressPercentage(job.status)}
+                    {getProgressPercentage(data.status)}
                   </span>
                 </div>
 
                 <div className="w-full bg-muted rounded-full h-2">
                   <div
                     className={`h-2 rounded-full transition-all duration-500 ${getProgressBarStyle(
-                      job.status
+                      data.status
                     )}`}
                   />
                 </div>
@@ -155,7 +150,7 @@ const ReportPage = () => {
                     <div>
                       <p className="text-sm font-medium"> Original Query</p>
                       <p className="text-sm text-muted-foreground truncate">
-                        {job.original_prompt}
+                        {data.original_prompt}
                       </p>
                     </div>
                   </div>
@@ -165,37 +160,37 @@ const ReportPage = () => {
                     <div>
                       <p className="text-sm font-medium">Created</p>
                       <p className="text-sm text-muted-foreground">
-                        {formatDateTime(job.created_at)}
+                        {formatDateTime(data.created_at)}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {job.completed_at && (
+                {data.completed_at && (
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-4 h-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Completed</p>
                       <p className="text-sm text-muted-foreground">
-                        {formatDateTime(job.completed_at)}
+                        {formatDateTime(data.completed_at)}
                       </p>
                     </div>
                   </div>
                 )}
 
-                {job.snapshot_id && (
+                {data.snapshot_id && (
                   <div className="flex items-center gap-3">
                     <BarChart3 className="w-4 h-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Snapshot ID</p>
                       <p className="text-sm text-muted-foreground">
-                        {formatDateTime(job.snapshot_id)}
+                        {formatDateTime(data.snapshot_id)}
                       </p>
                     </div>
                   </div>
                 )}
 
-                {job.error && (
+                {data.error && (
                   <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                     <div className="flex items-start gap-2">
                       <XCircle className="w-4 h-4 text-red-600 mt-0.5 shrink-0" />
@@ -204,7 +199,7 @@ const ReportPage = () => {
                           Error Details
                         </p>
                         <p className="text-sm text-red-700 dark:text-red-300 mt-1">
-                          {job.error}
+                          {data.error}
                         </p>
                       </div>
                     </div>
@@ -213,9 +208,9 @@ const ReportPage = () => {
               </div>
 
               {/** Results Preview */}
-              {job.status === "COMPLETED" &&
-                job.results &&
-                job.results.length > 0 && (
+              {data.status === "COMPLETED" &&
+                data.results &&
+                data.results.length > 0 && (
                   <div className="pt-4 border-t">
                     <div className="flex items-center gap-2 mb-3">
                       <BarChart3 className="w-4 h-4 text-green-600" />
@@ -235,8 +230,8 @@ const ReportPage = () => {
 
           {/** Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            {job.status === "COMPLETED" && (
-              <Link href={`/dashboard/report/${job.snapshot_id}/summary`}>
+            {data.status === "COMPLETED" && (
+              <Link href={`/dashboard/report/${data.snapshot_id}/summary`}>
                 <Button
                   variant="default"
                   size="lg"
@@ -247,14 +242,14 @@ const ReportPage = () => {
               </Link>
             )}
 
-            {job.status === "FAILED" && (
+            {data.status === "FAILED" && (
               <div className="flex flex-col items-center gap-2">
                 <Button
                   variant="default"
                   size="lg"
                   className="cursor-pointer"
                   onClick={handleRetry}
-                  disabled={isPending}
+                  disabled={transitionIsPending}
                 >
                   {transitionIsPending ? (
                     <>
