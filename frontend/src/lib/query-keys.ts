@@ -7,4 +7,5 @@ export const scrapingJobKeys = {
 
   create: () => [...scrapingJobKeys.all, "create"] as const,
   delete: (id: string) => [...scrapingJobKeys.all, "delete", id] as const,
+  retry: (id: string) => [...scrapingJobKeys.all, id, "retry"],
 };
