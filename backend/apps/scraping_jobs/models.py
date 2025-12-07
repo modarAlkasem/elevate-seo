@@ -225,7 +225,7 @@ class ScrapingJobQuerySet(models.QuerySet):
                 - "has_analysis_prompt" (bool): True if the job has an analysis prompt.
         """
 
-        job: ScrapingJob = self.filter(id=job_id).afirst()
+        job: ScrapingJob = await self.filter(id=job_id).afirst()
 
         if not job or job.user.id != user_id:
             return {
@@ -244,7 +244,7 @@ class ScrapingJobQuerySet(models.QuerySet):
             "has_analysis_prompt": has_analysis_prompt,
         }
 
-    def reset_job_for_analyzing_retry(self, job_id: str) -> None:
+    async def reset_job_for_analyzing_retry(self, job_id: str) -> None:
         """
         Reset a ScrapingJob instance for analysis retry.
         This clears analysis-related fields but preserves the scraping data.
@@ -256,7 +256,7 @@ class ScrapingJobQuerySet(models.QuerySet):
             None
         """
 
-        self.filter(id=job_id).update(
+        await self.filter(id=job_id).aupdate(
             status=ScrapingJobStatusChoices.ANALYZING.value,
             error=None,
             completed_at=None,

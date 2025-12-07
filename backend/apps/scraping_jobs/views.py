@@ -82,6 +82,13 @@ class ScrapingJobViewSet(ViewSet):
 
         return Response(data=job, status_text=status_text, status_code=status_code)
 
+    @action(methods=["POST"], detail=True)
+    async def retry(self, request: Request, pk: str) -> Response:
+        user = request.user
+        job, status_text, status_code = await ScrapingJobService.retry_job(pk, user)
+
+        return Response(data=job, status_text=status_text, status_code=status_code)
+
 
 class BrightDataWebhookAPIView(APIView):
     authentication_classes = []

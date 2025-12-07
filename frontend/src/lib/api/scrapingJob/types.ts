@@ -18,3 +18,8 @@ export type GetScrapingJobBySnapshotIDPayload = {
 };
 
 export type GetScrapingJobBySnapshotIDResponse = ScrapingJob;
+
+export type RetryJobPayload = {
+  jobId: string;
+};
+export type RetryJobResponse = ScrapingJob;

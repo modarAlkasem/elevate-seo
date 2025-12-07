@@ -1,5 +1,5 @@
 # Python Imports
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, TypedDict
 from urllib.parse import quote
 import httpx
 import logging
@@ -19,29 +19,61 @@ from authentication.models import User
 from ..serializers import ScrapingJobModelSerializer, ListScrapingJobModelSerializer
 from ..models import ScrapingJob
 from ..prompts.perplexity import perplexity_prompt as perplexity_prompt_obj
+from ..tasks import analyze_scraped_data
 
 
 logger = logging.getLogger(__name__)
 
 
+class StartBrightDataScrapingReturn(TypedDict):
+    snapshot_id: Optional[str]
+    message: Optional[str]
+    code: int
+
+
 class ScrapingJobService:
 
-    @staticmethod
-    def retry_job(job_id: str, user: User):
-        pass
+    @classmethod
+    async def retry_job(cls, job_id: str, user: User):
+        retry_info = await ScrapingJob.objects.can_use_smart_retry(job_id, user.id)
 
-    @staticmethod
-    async def create_new_job(
-        user: User,
-        original_prompt: str,
-        country_code: Optional["str"] = "US",
-    ):
+        job = await ScrapingJob.objects.get_job_by_id(job_id)
+        if retry_info.get("can_retry_analysis_only"):
+            await ScrapingJob.objects.reset_job_for_analyzing_retry(job.id)
+            analyze_scraped_data.delay(job_id)
 
-        scraping_job = await ScrapingJob.objects.acreate(
-            user=user, original_prompt=original_prompt
+        elif not retry_info.get("has_scraping_data"):
+            bt_scraping_result = await cls.start_brightdata_scraping(job)
+
+            if (
+                not bt_scraping_result.get("success")
+                and bt_scraping_result.get("code")
+                == status.HTTP_500_INTERNAL_SERVER_ERROR
+            ):
+                return (
+                    bt_scraping_result.get("message"),
+                    "UNKNOWN_ERROR",
+                    status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+            snapshot_id = bt_scraping_result.get("snapshot_id")
+
+            await ScrapingJob.objects.update_job_with_snapshot_id(job.id, snapshot_id)
+
+        response_data = await ScrapingJobModelSerializer(instance=job).adata
+        return (
+            response_data,
+            "SUCCESS",
+            status.HTTP_200_OK,
         )
 
-        webhook_url = f"{settings.API_BASE_URL}{settings.BRIGHTDATA_WEBHOOK_PATH}?job-id={scraping_job.id}"
+    @staticmethod
+    async def start_brightdata_scraping(
+        job: ScrapingJob, original_prompt: Optional[str], country_code: Optional[str]
+    ) -> StartBrightDataScrapingReturn:
+        webhook_url = (
+            f"{settings.API_BASE_URL}{settings.BRIGHTDATA_WEBHOOK_PATH}?job-id={job.id}"
+        )
         encoded_webhook_url = quote(webhook_url, safe="")
 
         url = (
@@ -91,62 +123,88 @@ class ScrapingJobService:
                     error_msg = f"HTTP {response.status_code}: {error_text}"
 
                     logger.error(
-                        f"BrightData API call's error for job {scraping_job.id}: {error_text}"
+                        f"BrightData API call's error for job {job.id}: {error_text}"
                     )
 
-                    await ScrapingJob.objects.set_job_to_failed(
-                        scraping_job.id, error_msg
-                    )
+                    await ScrapingJob.objects.set_job_to_failed(job.id, error_msg)
 
-                    return (
-                        error_msg,
-                        "UNKNOWN_ERROR",
-                        status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    )
+                    return {
+                        "message": error_msg,
+                        "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    }
 
                 data = response.json()
 
-                if data and data.get("snapshot_id"):
-                    await ScrapingJob.objects.update_job_with_snapshot_id(
-                        scraping_job.id, data.get("snapshot_id")
-                    )
-
-                    response_data = await ScrapingJobModelSerializer(
-                        instance=scraping_job
-                    ).adata
-                    return (
-                        response_data,
-                        "CREATED",
-                        status.HTTP_201_CREATED,
-                    )
+                return {
+                    "message": "success",
+                    "snapshot_id": data.get("snapshot_id"),
+                    "code": status.HTTP_200_OK,
+                }
 
         except httpx.TimeoutException as e:
             error_msg = str(e)
             logger.error(
-                f"BrightData API call timeout error for job {scraping_job.id}: {error_msg}"
+                f"BrightData API call timeout error for job {job.id}: {error_msg}"
             )
 
-            await ScrapingJob.objects.set_job_to_failed(scraping_job.id, error_msg)
+            await ScrapingJob.objects.set_job_to_failed(job.id, error_msg)
 
-            return (
-                error_msg,
-                "UNKNOWN_ERROR",
-                status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            return {
+                "message": error_msg,
+                "snapshot_id": None,
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+            }
 
         except Exception as e:
             error_msg = str(e)
             logger.error(
-                f"BrightData API call's error for job {scraping_job.id}: {error_msg}"
+                f"Error happened while updating job status to failed (Job ID:  {job.id}): {error_msg}"
             )
 
-            await ScrapingJob.objects.set_job_to_failed(scraping_job.id, error_msg)
+            return {
+                "message": error_msg,
+                "snapshot_id": None,
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+            }
 
+    @classmethod
+    async def create_new_job(
+        cls,
+        user: User,
+        original_prompt: str,
+        country_code: Optional["str"] = "US",
+    ):
+
+        scraping_job = await ScrapingJob.objects.acreate(
+            user=user, original_prompt=original_prompt
+        )
+
+        bt_scraping_result = await cls.start_brightdata_scraping(
+            scraping_job, original_prompt, country_code
+        )
+
+        if (
+            not bt_scraping_result.get("success")
+            and bt_scraping_result.get("code") == status.HTTP_500_INTERNAL_SERVER_ERROR
+        ):
             return (
-                error_msg,
+                bt_scraping_result.get("message"),
                 "UNKNOWN_ERROR",
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+        snapshot_id = bt_scraping_result.get("snapshot_id")
+
+        await ScrapingJob.objects.update_job_with_snapshot_id(
+            scraping_job.id, snapshot_id
+        )
+
+        response_data = await ScrapingJobModelSerializer(instance=scraping_job).adata
+        return (
+            response_data,
+            "CREATED",
+            status.HTTP_201_CREATED,
+        )
 
     @staticmethod
     async def list(user_id: int) -> Tuple[Optional[List[ScrapingJob]], str, int]:

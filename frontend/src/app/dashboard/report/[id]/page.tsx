@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 
@@ -24,7 +23,10 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
-import { getScrapingJobBySnapshotID } from "@/lib/api/scrapingJob/fetchers";
+import {
+  getScrapingJobBySnapshotID,
+  retryJob,
+} from "@/lib/api/scrapingJob/fetchers";
 import { scrapingJobKeys } from "@/lib/query-keys";
 import {
   getSpinnerColor,
@@ -34,27 +36,33 @@ import {
   getProgressPercentage,
   formatDateTime,
 } from "@/lib/status-utils";
-import { ScrapingJobStatusWebSocket } from "@/lib/websocket/scraping-job-status-websocket";
+
 import { useScrapingJobsStatus } from "@/lib/websocket/hooks/use-scraping-jobs-status";
 import type { ScrapingJobStatusUpdateEventPayload } from "@/lib/websocket/scraping-job-status-websocket";
 
 const ReportPage = () => {
-  const [id, setId] = useState<string | null>(null);
-  const [retryError, setRetryError] = useState<string | null>(null);
-
-  const [transitionIsPending, startTransition] = useTransition();
-
   const router = useRouter();
 
   const snapshotId = useParams<{ id: string }>().id;
+
+  const mutation = useMutation({
+    mutationKey: scrapingJobKeys.retry(snapshotId),
+    mutationFn: retryJob,
+    onSuccess: (data, variables, onMutateResult, cx) => {
+      if (data.snapshot_id !== snapshotId)
+        router.replace(`/dashboard/report/${data.snapshot_id}`);
+    },
+  });
 
   const { data, isPending, error, refetch } = useQuery({
     queryKey: scrapingJobKeys.bySnapshot(snapshotId),
     queryFn: () => getScrapingJobBySnapshotID({ snapshot_id: snapshotId }),
   });
 
-  const handleRetry = () => {
-    console.log("handleRetry function is called");
+  const handleRetry = async () => {
+    if (!data) return;
+
+    await mutation.mutateAsync({ jobId: data.id });
   };
 
   if (isPending) {
@@ -249,9 +257,9 @@ const ReportPage = () => {
                   size="lg"
                   className="cursor-pointer"
                   onClick={handleRetry}
-                  disabled={transitionIsPending}
+                  disabled={mutation.isPending}
                 >
-                  {transitionIsPending ? (
+                  {mutation.isPending ? (
                     <>
                       {" "}
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -261,6 +269,14 @@ const ReportPage = () => {
                     "Retry Report"
                   )}
                 </Button>
+
+                {mutation.error && (
+                  <p className="text-sm text-red-600 dark:text-red-400 text-center">
+                    {mutation.error instanceof Error
+                      ? mutation.error.message
+                      : "Unknown error occurred"}
+                  </p>
+                )}
               </div>
             )}
             <Link href="/dashboard">
