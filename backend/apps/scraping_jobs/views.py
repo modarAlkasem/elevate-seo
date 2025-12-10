@@ -12,12 +12,15 @@ from adrf.views import APIView
 from adrf.viewsets import ViewSet
 
 # Project Imports
-from scraping_jobs.models import ScrapingJob
 from core.responses import Response
 
 # App Imports
 from .services import ScrapingJobService, BrightDataWebhookService
-from .serializers import ScrapingJobCreationSerializer, ListScrapingJobModelSerializer
+from .serializers import (
+    ScrapingJobCreationSerializer,
+    ListScrapingJobModelSerializer,
+    ScrapingJobModelSerializer,
+)
 
 
 class ScrapingJobViewSet(ViewSet):
@@ -78,7 +81,7 @@ class ScrapingJobViewSet(ViewSet):
         )
 
         if job:
-            job = await ListScrapingJobModelSerializer(instance=job).adata
+            job = await ScrapingJobModelSerializer(instance=job).adata
 
         return Response(data=job, status_text=status_text, status_code=status_code)
 
