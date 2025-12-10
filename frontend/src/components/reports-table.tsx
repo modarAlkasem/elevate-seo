@@ -22,7 +22,7 @@ import { useScrapingJobsStatus } from "@/lib/websocket/hooks/use-scraping-jobs-s
 import type { ScrapingJobStatusUpdateEventPayload } from "@/lib/websocket/scraping-job-status-websocket";
 
 export const ReportsTable = () => {
-  const { data, isPending, isSuccess, error, isError } = useQuery({
+  const { data, isPending, isSuccess, error, isError, status } = useQuery({
     queryKey: scrapingJobKeys.list(),
     queryFn: getScrapingJobs,
   });
@@ -30,7 +30,7 @@ export const ReportsTable = () => {
   const [deletingJobId, setDeletingJobId] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
-  useScrapingJobsStatus((data: ScrapingJobStatusUpdateEventPayload) => {
+  useScrapingJobsStatus(async (data: ScrapingJobStatusUpdateEventPayload) => {
     if (data.type === "job_status_update")
       queryClient.setQueryData(
         scrapingJobKeys.list(),

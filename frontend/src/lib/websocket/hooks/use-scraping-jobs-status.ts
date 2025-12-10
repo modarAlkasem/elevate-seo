@@ -1,4 +1,4 @@
-import { useEffect, use } from "react";
+import { useEffect } from "react";
 
 import {
   type ScrapingJobStatusWSCallback,
@@ -9,7 +9,9 @@ export const useScrapingJobsStatus = (cb: ScrapingJobStatusWSCallback) => {
   useEffect(() => {
     const ws = new ScrapingJobStatusWebSocket();
 
-    use(ws.connect());
+    (async () => {
+      await ws.connect();
+    })();
 
     const cleanupFN = ws.onJobsStatusUpdate(cb);
 
