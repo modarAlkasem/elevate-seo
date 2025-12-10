@@ -28,7 +28,7 @@ channel_layer = get_channel_layer()
 
 
 @shared_task(bind=True)
-async def analyze_scraped_data(self, job_id: str):
+def analyze_scraped_data(self, job_id: str):
     """
     Analyze scraped data for the given ScrapingJob using Gemini.
 
@@ -62,6 +62,7 @@ async def analyze_scraped_data(self, job_id: str):
             async_to_sync(channel_layer.group_send)(
                 f"user_{user.id}_jobs_status", event_data
             )
+            return
 
         ScrapingJob.objects.set_job_to_analyzing(job.id)
 
@@ -96,7 +97,7 @@ async def analyze_scraped_data(self, job_id: str):
 
         result = agent.invoke({"messages": [HumanMessage(content=analysis_prompt)]})
 
-        ScrapingJob.objects.save_seo_report(job.id, result["structured_reponse"])
+        ScrapingJob.objects.save_seo_report(job.id, result["structured_response"])
 
         ScrapingJob.objects.set_job_to_completed(job.id)
         event_data = {
