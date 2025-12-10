@@ -13,7 +13,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { CountrySelector } from "@/components/country-selector";
-import { Badge } from "@/components/ui/badge";
 import { FileText, Sparkles, Plus, BarChart3 } from "lucide-react";
 import { ReportsTable } from "@/components/reports-table";
 import { createScrapingJob } from "@/lib/api/scrapingJob/fetchers";
