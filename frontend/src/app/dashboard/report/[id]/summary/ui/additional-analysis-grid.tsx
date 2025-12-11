@@ -127,7 +127,7 @@ export function AdditionalAnalysisGrid({
                             rel="noopener noreferrer"
                             className="text-primary hover:underline truncate flex-1 mr-3 font-medium text-sm"
                           >
-                            {source.domain}
+                            {source?.domain}
                           </a>
                           {source.evidence && source.evidence.length > 0 && (
                             <Badge
@@ -254,7 +254,7 @@ export function AdditionalAnalysisGrid({
                   )
                     .flat()
                     .filter(
-                      (source: { domain?: string }) => source.domain === domain
+                      (source: { domain?: string }) => source?.domain === domain
                     );
                   const avgQuality =
                     domainSources.length > 0
