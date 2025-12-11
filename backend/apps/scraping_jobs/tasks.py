@@ -8,8 +8,6 @@ from django.conf import settings
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
-from langchain.agents import create_agent
-from langchain.agents.structured_output import ProviderStrategy
 from langchain.messages import HumanMessage, SystemMessage
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -17,7 +15,7 @@ from pydantic import ValidationError
 
 # App Imports
 from .models import ScrapingJob
-from .schemas import SEOReportSchema
+from .schemas import SEOReportSchema, MetaSchema
 from .prompts.gemini import gemini_prompt
 from .consumers import ScrapingJoStatus
 from .constants import ScrapingJobStatusChoices
@@ -91,12 +89,6 @@ def analyze_scraped_data(self, job_id: str):
             google_api_key=settings.GOOGLE_API_KEY,
         )
 
-        # agent = create_agent(
-        #     model=model,
-        #     system_prompt=gemini_prompt.build("SYSTEM"),
-        #     response_format=ProviderStrategy(SEOReportSchema),
-        # )
-
         structured_model = model.with_structured_output(
             SEOReportSchema, method="json_mode"
         )
@@ -104,11 +96,10 @@ def analyze_scraped_data(self, job_id: str):
             SystemMessage(content=gemini_prompt.build("SYSTEM")),
             HumanMessage(content=analysis_prompt),
         ]
-        # result = agent.invoke({"messages": [HumanMessage(content=analysis_prompt)]})
 
         result = structured_model.invoke(messages)
 
-        ScrapingJob.objects.save_seo_report(job.id, result["structured_response"])
+        ScrapingJob.objects.save_seo_report(job.id, result.model_dump())
 
         ScrapingJob.objects.set_job_to_completed(job.id)
         event_data = {
