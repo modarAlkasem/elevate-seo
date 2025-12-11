@@ -112,9 +112,8 @@ class ScrapingJobQuerySet(models.QuerySet):
 
         """
 
-        validated = SEOReportSchema(**seo_report)
         self.filter(id=job_id).update(
-            seo_report=validated.model_dump(),
+            seo_report=seo_report,
         )
 
     def save_analysis_prompt(self, job_id: str, prompt: str) -> None:

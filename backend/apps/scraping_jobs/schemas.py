@@ -57,7 +57,7 @@ class SourceTypeEnum(str, Enum):
 
 
 class LinkType(str, Enum):
-    DEFOLLOW = "defollow"
+    DOFOLLOW = "dofollow"
     NOFOLLOW = "nofollow"
     UNKNOWN = "unknown"
 
@@ -97,7 +97,7 @@ class MetaSchema(BaseModel):
     entity_name: str
     entity_type: EntityType
     analysis_date: str
-    data_source_count: int
+    data_sources_count: int
     confidence_score: float = Field(ge=0, le=1)
 
 
