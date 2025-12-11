@@ -8,6 +8,9 @@ import logging
 from pydantic import ValidationError
 from rest_framework import status
 
+# Third-Party Imports
+from asgiref.sync import sync_to_async
+
 # Django Imports
 from django.conf import settings
 
@@ -199,6 +202,7 @@ class ScrapingJobService:
             scraping_job.id, snapshot_id
         )
 
+        await sync_to_async(scraping_job.refresh_from_db)(fields=["snapshot_id"])
         response_data = await ScrapingJobModelSerializer(instance=scraping_job).adata
         return (
             response_data,

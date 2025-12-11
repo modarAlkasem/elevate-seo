@@ -28,7 +28,7 @@ const DashboardPage = () => {
     mutationKey: scrapingJobKeys.create(),
     mutationFn: createScrapingJob,
     onSuccess: (data) => {
-      router.push(`./report/${data.snapshot_id}`);
+      router.push(`/dashboard/report/${data.snapshot_id}`);
     },
     retry: 3,
   });
@@ -37,7 +37,6 @@ const DashboardPage = () => {
     e.preventDefault();
 
     await mutateAsync({ prompt, country_code: country });
-    router;
   };
 
   return (
