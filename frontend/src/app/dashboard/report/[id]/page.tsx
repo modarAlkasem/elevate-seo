@@ -59,6 +59,16 @@ const ReportPage = () => {
     queryFn: () => getScrapingJobBySnapshotID({ snapshot_id: snapshotId }),
   });
 
+  useScrapingJobsStatus(
+    async (event_data: ScrapingJobStatusUpdateEventPayload) => {
+      if (
+        event_data.type === "job_status_update" &&
+        (event_data.data?.job_id === event_data.data?.job_id) === data.id
+      )
+        await refetch();
+    }
+  );
+
   const handleRetry = async () => {
     if (!data) return;
 
@@ -82,16 +92,6 @@ const ReportPage = () => {
       </div>
     );
   }
-
-  useScrapingJobsStatus(
-    async (event_data: ScrapingJobStatusUpdateEventPayload) => {
-      if (
-        event_data.type === "job_status_update" &&
-        (event_data.data?.job_id === event_data.data?.job_id) === data.id
-      )
-        await refetch();
-    }
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -192,7 +192,7 @@ const ReportPage = () => {
                     <div>
                       <p className="text-sm font-medium">Snapshot ID</p>
                       <p className="text-sm text-muted-foreground">
-                        {formatDateTime(data.snapshot_id)}
+                        {data.snapshot_id}
                       </p>
                     </div>
                   </div>
