@@ -10,7 +10,7 @@ from celery.utils.log import get_task_logger
 from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
 from langchain.agents import create_agent
 from langchain.agents.structured_output import ProviderStrategy
-from langchain.messages import HumanMessage
+from langchain.messages import HumanMessage, SystemMessage
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from pydantic import ValidationError
@@ -86,16 +86,27 @@ def analyze_scraped_data(self, job_id: str):
         ScrapingJob.objects.save_analysis_prompt(job.id, analysis_prompt)
 
         model = ChatGoogleGenerativeAI(
-            model=settings.GOOGLE_GEMINI_MODEL_IDENTIFIER, temperature=0.7
+            model=settings.GOOGLE_GEMINI_MODEL_IDENTIFIER,
+            temperature=0.7,
+            google_api_key=settings.GOOGLE_API_KEY,
         )
 
-        agent = create_agent(
-            model=model,
-            system_prompt=gemini_prompt.build("SYSTEM"),
-            response_format=ProviderStrategy(SEOReportSchema),
-        )
+        # agent = create_agent(
+        #     model=model,
+        #     system_prompt=gemini_prompt.build("SYSTEM"),
+        #     response_format=ProviderStrategy(SEOReportSchema),
+        # )
 
-        result = agent.invoke({"messages": [HumanMessage(content=analysis_prompt)]})
+        structured_model = model.with_structured_output(
+            SEOReportSchema, method="json_mode"
+        )
+        messages = [
+            SystemMessage(content=gemini_prompt.build("SYSTEM")),
+            HumanMessage(content=analysis_prompt),
+        ]
+        # result = agent.invoke({"messages": [HumanMessage(content=analysis_prompt)]})
+
+        result = structured_model.invoke(messages)
 
         ScrapingJob.objects.save_seo_report(job.id, result["structured_response"])
 
