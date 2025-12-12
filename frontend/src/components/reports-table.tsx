@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Loader2, FileText, Plus, Trash2, TrendingUp } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -46,6 +47,8 @@ export const ReportsTable = () => {
       );
   });
 
+  const router = useRouter();
+
   if (isPending) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center">
@@ -85,7 +88,7 @@ export const ReportsTable = () => {
   }
 
   const handleRowClick = (jobId: string) => {
-    console.log(`handleRowClick has been clicked with Job ID: ${jobId}`);
+    router.push(`/dashboard/report/${jobId}`);
   };
 
   const handleDelete = (e: React.MouseEvent, jobId: string) => {
@@ -121,7 +124,7 @@ export const ReportsTable = () => {
               <TableRow
                 key={job.id}
                 className="cursor-pointer hover:muted/30 transition-colors border-b border-border/30 last:border-b-0"
-                onClick={() => handleRowClick(job.id)}
+                onClick={() => handleRowClick(job.snapshot_id)}
               >
                 <TableCell className="font-medium py-4">
                   <div className="flex items-center gap-3">
