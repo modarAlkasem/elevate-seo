@@ -34,5 +34,13 @@ pytz==2025.2
 drf-spectacular==0.29.0
 sentry-sdk~=2.43.0
 
+# test
+pytest~=9.0.2
+pytest-django~=4.11.1
+pytest-cov~=7.0.0
+factory-boy~=3.3.3
+Faker~=38.2.0
+freezegun~=1.5.5
+
 # Production
 daphne~=4.2.1
