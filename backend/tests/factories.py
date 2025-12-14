@@ -34,3 +34,18 @@ class UserFactory(DjangoModelFactory):
 
         if create:
             obj.save()
+
+
+class AccountFactory(DjangoModelFactory):
+    class Meta:
+        model = Account
+
+    id = factory.LazyFunction(uuid.uuid4)
+    user = factory.SubFactory(UserFactory)
+    type = factory.LazyAttribute(lambda _: AccountTypeChoices.CREDENTIALS.value)
+    provider = factory.LazyAttribute(lambda _: AccountProviderChoices.CREDENTIALS.value)
+    provider_account_id = factory.Faker("uuid4")
+    token_type = None
+    scope = None
+    id_token = None
+    expires_at = factory.LazyAttribute(lambda _: timezone.now() + timedelta(days=30))
