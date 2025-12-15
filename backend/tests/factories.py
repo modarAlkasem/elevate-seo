@@ -32,7 +32,10 @@ class UserFactory(DjangoModelFactory):
 
     @factory.post_generation
     def hash_password(obj, create, extracted, **kwargs):
-        obj.password = make_password(obj.password)
+        if extracted:
+            obj.password = make_password(obj.password)
+        else:
+            obj.password = make_password("SecurePass123!")
 
         if create:
             obj.save()

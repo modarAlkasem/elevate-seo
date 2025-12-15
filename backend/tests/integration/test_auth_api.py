@@ -62,3 +62,16 @@ class TestAuthenticationAPI:
         response = api_client.post(url, data, format="json")
 
         assert status.HTTP_400_BAD_REQUEST == response.status_code
+
+    def test_signin_success(self, test_user, api_client):
+        """Test successful user signin"""
+
+        url = reverse("authentication:signin")
+
+        data = {"email": test_user.email, "password": "SecurePass123!"}
+
+        response = api_client.post(url, data, format="json")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert "token" in response.data
+        assert "access" and "refresh" in response.data
