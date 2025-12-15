@@ -75,3 +75,17 @@ class TestAuthenticationAPI:
         assert response.status_code == status.HTTP_200_OK
         assert "token" in response.data
         assert "access" and "refresh" in response.data
+
+    def test_signin_wrong_password(self, test_user, api_client):
+        """Test signin with incorrect password"""
+
+        url = reverse("authentication:signin")
+
+        data = {"email": test_user.email, "password": "SecurePass321!"}
+
+        response = api_client.post(url, data, format="json")
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+    def 
