@@ -27,7 +27,12 @@ from drf_spectacular.views import (
 
 
 urlpatterns = [
-    path("api/auth/", include("authentication.routing", namespace="authentication")),
+    path(
+        "api/auth/",
+        include(
+            ("authentication.routing", "authentication"), namespace="authentication"
+        ),
+    ),
     path("", include("scraping_jobs.routing")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(

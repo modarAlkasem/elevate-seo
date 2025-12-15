@@ -19,7 +19,7 @@ class TestAuthenticationAPI:
     def test_signup_success(self, api_client: APIClient):
         """Test successful user registeration using credentials method"""
 
-        url = reverse("authentication:signup")
+        url = reverse("authentication:auth-signup")
 
         data = {
             "name": "Test User",
@@ -33,14 +33,14 @@ class TestAuthenticationAPI:
         assert "email" in response.data
         assert response.data.get("email") == data.get("email")
 
-    def test_signup_duplicate_email(self, api_client):
+    def test_signup_duplicate_email(self, api_client: APIClient, test_user):
         """Test signup falis with duplicate email"""
 
-        url = reverse("authentication:signup")
+        url = reverse("authentication:auth-signup")
 
         data = {
             "name": "Test User",
-            "email": "newuser@test.com",
+            "email": test_user.email,
             "password": "SecurePassword!",
         }
 
@@ -48,10 +48,10 @@ class TestAuthenticationAPI:
 
         assert status.HTTP_400_BAD_REQUEST == response.status_code
 
-    def test_signup_invalid_email(self, api_client):
+    def test_signup_invalid_email(self, api_client: APIClient):
         """Test signup with invalid email format"""
 
-        url = reverse("authentication:signup")
+        url = reverse("authentication:auth-signup")
 
         data = {
             "name": "Test User",
@@ -63,23 +63,23 @@ class TestAuthenticationAPI:
 
         assert status.HTTP_400_BAD_REQUEST == response.status_code
 
-    def test_signin_success(self, test_user, api_client):
+    def test_signin_success(self, test_user, api_client: APIClient):
         """Test successful user signin"""
 
-        url = reverse("authentication:signin")
+        url = reverse("authentication:auth-signin")
 
         data = {"email": test_user.email, "password": "SecurePass123!"}
 
         response = api_client.post(url, data, format="json")
 
         assert response.status_code == status.HTTP_200_OK
-        assert "token" in response.data
-        assert "access" and "refresh" in response.data
+        assert "tokens" in response.data
+        assert "access" and "refresh" in response.data.get("tokens")
 
-    def test_signin_wrong_password(self, test_user, api_client):
+    def test_signin_wrong_password(self, test_user, api_client: APIClient):
         """Test signin with incorrect password"""
 
-        url = reverse("authentication:signin")
+        url = reverse("authentication:auth-signin")
 
         data = {"email": test_user.email, "password": "SecurePass321!"}
 
@@ -87,5 +87,13 @@ class TestAuthenticationAPI:
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
+    def test_signin_unexistent_user(self, test_user, api_client: APIClient):
+        """Test signin with non-registered email"""
 
-    def 
+        url = reverse("authentication:auth-signin")
+
+        data = {"email": "nonexistent@test.com", "password": "somepassword"}
+
+        response = api_client.post(url, data, format="json")
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED

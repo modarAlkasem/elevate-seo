@@ -13,8 +13,8 @@ import factory
 from factory.django import DjangoModelFactory
 
 # Project Imports
-from apps.authentication.models import User, Account
-from apps.authentication.constants import AccountTypeChoices, AccountProviderChoices
+from authentication.models import User, Account
+from authentication.constants import AccountTypeChoices, AccountProviderChoices
 
 
 class UserFactory(DjangoModelFactory):
