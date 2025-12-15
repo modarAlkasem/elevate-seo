@@ -47,3 +47,18 @@ class TestAuthenticationAPI:
         response = api_client.post(url, data, format="json")
 
         assert status.HTTP_400_BAD_REQUEST == response.status_code
+
+    def test_signup_invalid_email(self, api_client):
+        """Test signup with invalid email format"""
+
+        url = reverse("authentication:signup")
+
+        data = {
+            "name": "Test User",
+            "email": "invalid_email",
+            "password": "SecurePassword!",
+        }
+
+        response = api_client.post(url, data, format="json")
+
+        assert status.HTTP_400_BAD_REQUEST == response.status_code
