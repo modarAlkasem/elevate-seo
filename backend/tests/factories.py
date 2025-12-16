@@ -13,8 +13,8 @@ import factory
 from factory.django import DjangoModelFactory
 
 # Project Imports
-from apps.authentication.models import User, Account
-from apps.authentication.constants import AccountTypeChoices, AccountProviderChoices
+from authentication.models import User, Account
+from authentication.constants import AccountTypeChoices, AccountProviderChoices
 
 
 class UserFactory(DjangoModelFactory):
@@ -32,7 +32,10 @@ class UserFactory(DjangoModelFactory):
 
     @factory.post_generation
     def hash_password(obj, create, extracted, **kwargs):
-        obj.password = make_password(obj.password)
+        if extracted:
+            obj.password = make_password(obj.password)
+        else:
+            obj.password = make_password("SecurePass123!")
 
         if create:
             obj.save()

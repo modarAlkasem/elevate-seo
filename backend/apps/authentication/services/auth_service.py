@@ -65,7 +65,7 @@ class AuthService:
             }
 
         except ValidationError as e:
-            response = {"data": e.detail, "status_code": status.HTTP_400_BAD_REQUEST}
+            response = {"data": e.detail, "status_code": status.HTTP_401_UNAUTHORIZED}
 
             [_, [error_detail]] = list(e.detail.items())[0]
             if error_detail.code in SignInErrorCodeChoices.values:
