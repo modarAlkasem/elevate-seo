@@ -9,3 +9,4 @@ media
 staticfiles
 schema.yml
 .coverage
+htmlcov
