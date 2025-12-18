@@ -10,3 +10,4 @@ staticfiles
 schema.yml
 .coverage
 htmlcov
+.pytest_cache
