@@ -45,6 +45,7 @@ jobs:
             RABBITMQ_DEFAULT_PASS: ${{secrets.RABBITMQ_DEFAULT_PASS}}
             REDIS_HOST: ${{vars.REDIS_HOST}}
             REDIS_PORT: ${{vars.REDIS_PORT}}
+            SENTRY_DSN: ${{secrets.SENTRY_DSN}}
 
         services:
             db:
@@ -125,7 +126,6 @@ jobs:
                   CELERY_RESULT_BACKEND: ${{vars.CELERY_RESULT_BACKEND}}
                   GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
                   GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
-                  SENTRY_DSN: ${{secrets.SENTRY_DSN}}
                   BRIGHTDATA_API_KEY: ${{secrets.BRIGHTDATA_API_KEY}}
                   BRIGHTDATA_WEBHOOK_SECRET: ${{secrets.  BRIGHTDATA_WEBHOOK_SECRET}}
                   BRIGHTDATA_DATASET_ID: ${{secrets.  BRIGHTDATA_DATASET_ID}}
