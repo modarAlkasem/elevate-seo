@@ -36,14 +36,14 @@ jobs:
             ENV: ${{vars.ENV}}
             RELEASE_VERSION: ${{vars.RELEASE_VERSION}}
             DB_ENGINE: ${{vars.DB_ENGINE}}
-            DB_HOST: ${{vars.DB_HOST}}
+            DB_HOST: "localhost"
             DB_PORT: ${{vars.DB_PORT}}
             DB_USER: ${{secrets.DB_USER}}
             DB_PASSWORD: ${{secrets.DB_PASSWORD}}
             DB_NAME: ${{vars.DB_NAME}}
             RABBITMQ_DEFAULT_USER: ${{secrets.RABBITMQ_DEFAULT_USER}}
             RABBITMQ_DEFAULT_PASS: ${{secrets.RABBITMQ_DEFAULT_PASS}}
-            REDIS_HOST: ${{vars.REDIS_HOST}}
+            REDIS_HOST: "localhost"
             REDIS_PORT: ${{vars.REDIS_PORT}}
             SENTRY_DSN: ${{secrets.SENTRY_DSN}}
             GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
