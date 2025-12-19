@@ -47,6 +47,14 @@ jobs:
             REDIS_PORT: ${{vars.REDIS_PORT}}
             SENTRY_DSN: ${{secrets.SENTRY_DSN}}
             GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
+            GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
+            GOOGLE_API_KEY: ${{secrets.GOOGLE_API_KEY}}
+            GOOGLE_GEMINI_MODEL_IDENTIFIER: ${{vars.  GOOGLE_GEMINI_MODEL_IDENTIFIER}}
+            CELERY_BROKER_URL: ${{vars.CELERY_BROKER_URL}}
+            CELERY_RESULT_BACKEND: ${{vars.CELERY_RESULT_BACKEND}}
+            BRIGHTDATA_API_KEY: ${{secrets.BRIGHTDATA_API_KEY}}
+            BRIGHTDATA_WEBHOOK_SECRET: ${{secrets.  BRIGHTDATA_WEBHOOK_SECRET}}
+            BRIGHTDATA_DATASET_ID: ${{secrets.  BRIGHTDATA_DATASET_ID}}
 
         services:
             db:
@@ -122,15 +130,6 @@ jobs:
                   cd backend && python  manage.py makemigrations --check --dry-run --no-input
 
             - name: Run Django tests
-              env:
-                  CELERY_BROKER_URL: ${{vars.CELERY_BROKER_URL}}
-                  CELERY_RESULT_BACKEND: ${{vars.CELERY_RESULT_BACKEND}}
-                  GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
-                  BRIGHTDATA_API_KEY: ${{secrets.BRIGHTDATA_API_KEY}}
-                  BRIGHTDATA_WEBHOOK_SECRET: ${{secrets.  BRIGHTDATA_WEBHOOK_SECRET}}
-                  BRIGHTDATA_DATASET_ID: ${{secrets.  BRIGHTDATA_DATASET_ID}}
-                  GOOGLE_API_KEY: ${{secrets.GOOGLE_API_KEY}}
-                  GOOGLE_GEMINI_MODEL_IDENTIFIER: ${{vars.  GOOGLE_GEMINI_MODEL_IDENTIFIER}}
 
               run: |
                   cd backend && pytest tests/ \
