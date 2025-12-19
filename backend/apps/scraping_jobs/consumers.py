@@ -1,6 +1,6 @@
 # Python Imports
 import json
-from typing import TypedDict, Literal, Optional
+from typing import Literal, Optional, TypedDict
 
 # Third-Party Imports
 from channels.generic.websocket import AsyncWebsocketConsumer

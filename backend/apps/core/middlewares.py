@@ -3,13 +3,13 @@ from urllib.parse import parse_qs
 
 # Third-Party Imports
 from channels.middleware import BaseMiddleware
-from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import (
-    InvalidToken,
-    TokenError,
     AuthenticationFailed,
     ExpiredTokenError,
+    InvalidToken,
+    TokenError,
 )
+from rest_framework_simplejwt.tokens import AccessToken
 
 # Project Imports
 from authentication.models import User

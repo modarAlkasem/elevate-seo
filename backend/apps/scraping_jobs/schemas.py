@@ -1,6 +1,6 @@
 # Python Imports
 from enum import Enum
-from typing import List, Optional, Literal
+from typing import List, Literal, Optional
 
 # Third-party Imports
 from pydantic import BaseModel, Field, field_validator

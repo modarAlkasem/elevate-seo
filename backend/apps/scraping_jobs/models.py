@@ -1,13 +1,12 @@
 # Python Imports
-from typing import Any, Optional, List
+from typing import Any, List, Optional
 from uuid import uuid4
 
 # Django Imports
 from django.db import models
-from django.core.validators import MinLengthValidator
-from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
-
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.validators import MinLengthValidator
 
 # Project Imports
 from core.models import CreatedAtMixin

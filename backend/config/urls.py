@@ -16,15 +16,14 @@ Including another URLconf
 """
 
 # Django Imports
-from django.urls import path, include
+from django.urls import include, path
 
 # Third Party Imports
 from drf_spectacular.views import (
     SpectacularAPIView,
-    SpectacularSwaggerView,
     SpectacularRedocView,
+    SpectacularSwaggerView,
 )
-
 
 urlpatterns = [
     path(

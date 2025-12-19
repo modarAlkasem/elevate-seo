@@ -4,11 +4,11 @@ from uuid import uuid4
 # Django Imports
 from django.db import models
 
+# App Imports
+from .constants import AccountProviderChoices, AccountTypeChoices
+
 # Project Imports
 from core.models import CreatedAtMixin, TimeStampMixin
-
-# App Imports
-from .constants import AccountTypeChoices, AccountProviderChoices
 
 
 class User(TimeStampMixin):

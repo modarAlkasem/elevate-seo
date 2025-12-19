@@ -12,18 +12,19 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 # Python Imports
 import logging
-from pathlib import Path
-import sys
 import os
+import sys
 from datetime import timedelta
+from pathlib import Path
+
+import sentry_sdk
 
 # Third Party Imports
 from decouple import config
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
-from sentry_sdk.integrations.redis import RedisIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 # App Imports
 from .sentry import before_breadcrumb_filter, before_send_filter

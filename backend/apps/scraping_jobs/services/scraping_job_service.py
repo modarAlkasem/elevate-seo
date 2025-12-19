@@ -1,29 +1,27 @@
 # Python Imports
-from typing import Optional, Tuple, List, TypedDict
+import logging
+from typing import List, Optional, Tuple, TypedDict
 from urllib.parse import quote
 import httpx
-import logging
-
-# REST Framework Imports
-from pydantic import ValidationError
-from rest_framework import status
-
-# Third-Party Imports
-from asgiref.sync import sync_to_async
 
 # Django Imports
 from django.conf import settings
 
+# REST Framework Imports
+from rest_framework import status
+
+# Third-Party Imports
+from asgiref.sync import sync_to_async
+from pydantic import ValidationError
+
 # Project Imports
 from authentication.models import User
 
-
 # App Imports
 from ..serializers import ScrapingJobModelSerializer
+from ..tasks import analyze_scraped_data
 from ..models import ScrapingJob
 from ..prompts.perplexity import perplexity_prompt as perplexity_prompt_obj
-from ..tasks import analyze_scraped_data
-
 
 logger = logging.getLogger(__name__)
 

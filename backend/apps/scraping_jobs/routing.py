@@ -8,7 +8,6 @@ from rest_framework.routers import DefaultRouter
 from .views import BrightDataWebhookAPIView, ScrapingJobViewSet
 from .consumers import ScrapingJobsStatusWebsocketConsumer
 
-
 router = DefaultRouter()
 router.register("api/scraping-jobs", ScrapingJobViewSet, basename="scraping-job")
 
