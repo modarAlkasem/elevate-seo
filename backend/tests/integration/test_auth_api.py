@@ -8,9 +8,6 @@ from rest_framework.test import APIClient
 # Third-party Imports
 import pytest
 
-# Project Imports
-from ..factories import AccountFactory, UserFactory
-
 
 @pytest.mark.django_db
 class TestAuthenticationAPI:

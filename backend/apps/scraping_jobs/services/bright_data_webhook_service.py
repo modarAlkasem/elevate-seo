@@ -1,10 +1,9 @@
 # Python Imports
 import logging
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 # Django Imports
 from django.conf import settings
-
 
 # REST Framework Imports
 from rest_framework import status
@@ -13,7 +12,6 @@ from rest_framework.request import Request
 # App Imports
 from ..models import ScrapingJob
 from ..tasks import analyze_scraped_data
-
 
 logger = logging.getLogger(__name__)
 

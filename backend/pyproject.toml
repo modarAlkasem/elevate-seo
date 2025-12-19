@@ -1,0 +1,14 @@
+[tool.black]
+
+line-length = 100
+exclude = '''
+/(
+    migrations
+    | venv
+    | .venv
+    | env
+    | .env
+)/
+'''
+
+

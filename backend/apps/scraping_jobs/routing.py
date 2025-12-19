@@ -1,5 +1,5 @@
 # Django Imports
-from django.urls import path, re_path
+from django.urls import path
 
 # DRF imports
 from rest_framework.routers import DefaultRouter
@@ -7,7 +7,6 @@ from rest_framework.routers import DefaultRouter
 # App Imports
 from .views import BrightDataWebhookAPIView, ScrapingJobViewSet
 from .consumers import ScrapingJobsStatusWebsocketConsumer
-
 
 router = DefaultRouter()
 router.register("api/scraping-jobs", ScrapingJobViewSet, basename="scraping-job")

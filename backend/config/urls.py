@@ -16,22 +16,19 @@ Including another URLconf
 """
 
 # Django Imports
-from django.urls import path, include
+from django.urls import include, path
 
 # Third Party Imports
 from drf_spectacular.views import (
     SpectacularAPIView,
-    SpectacularSwaggerView,
     SpectacularRedocView,
+    SpectacularSwaggerView,
 )
-
 
 urlpatterns = [
     path(
         "api/auth/",
-        include(
-            ("authentication.routing", "authentication"), namespace="authentication"
-        ),
+        include(("authentication.routing", "authentication"), namespace="authentication"),
     ),
     path("", include("scraping_jobs.routing")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),

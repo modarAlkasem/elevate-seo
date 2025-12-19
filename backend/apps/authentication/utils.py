@@ -1,7 +1,8 @@
 # Python Imports
-from typing import Optional
-from datetime import datetime
 import logging
+from datetime import datetime
+from typing import Optional
+
 
 # Django Imports
 from django.utils import timezone
@@ -12,10 +13,8 @@ from jose import jwt
 from jose.exceptions import JWTError
 import requests
 
-
 # App Imports
 from .constants import AccountProviderChoices, AccountTypeChoices
-
 
 logger = logging.Logger(__name__)
 

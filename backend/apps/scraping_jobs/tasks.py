@@ -7,18 +7,18 @@ from django.conf import settings
 # Third-party Imports
 from celery import shared_task
 from celery.utils.log import get_task_logger
-from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
-from langchain.messages import HumanMessage, SystemMessage
-from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from langchain.messages import HumanMessage, SystemMessage
+from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
 from pydantic import ValidationError
 
 # App Imports
 from .models import ScrapingJob
-from .schemas import SEOReportSchema, MetaSchema
 from .prompts.gemini import gemini_prompt
-from .consumers import ScrapingJoStatus
+from .schemas import SEOReportSchema
 from .constants import ScrapingJobStatusChoices
+from .consumers import ScrapingJoStatus
 
 logger = get_task_logger(__name__)
 
@@ -43,9 +43,7 @@ def analyze_scraped_data(self, job_id: str):
         if not job.results or len(job.results) == 0:
             error_message = "No scraping data available for scraping job${0}"
 
-            async_to_sync(ScrapingJob.objects.set_job_to_failed)(
-                job.id, error_message.format("")
-            )
+            async_to_sync(ScrapingJob.objects.set_job_to_failed)(job.id, error_message.format(""))
 
             logger.error(error_message.format(f": {job.id}"))
 
@@ -57,9 +55,7 @@ def analyze_scraped_data(self, job_id: str):
                 },
                 "message": "Analyzing ScrapingJob has been failed",
             }
-            async_to_sync(channel_layer.group_send)(
-                f"user_{user.id}_jobs_status", event_data
-            )
+            async_to_sync(channel_layer.group_send)(f"user_{user.id}_jobs_status", event_data)
             return
 
         ScrapingJob.objects.set_job_to_analyzing(job.id)
@@ -72,13 +68,9 @@ def analyze_scraped_data(self, job_id: str):
             },
             "message": "ScrapingJob Analysis has been started",
         }
-        async_to_sync(channel_layer.group_send)(
-            f"user_{user.id}_jobs_status", event_data
-        )
+        async_to_sync(channel_layer.group_send)(f"user_{user.id}_jobs_status", event_data)
 
-        scraping_data = (
-            job.results if isinstance(job.results, Sequence) else [job.results]
-        )
+        scraping_data = job.results if isinstance(job.results, Sequence) else [job.results]
         analysis_prompt = gemini_prompt.build("USER", scraping_data)
 
         ScrapingJob.objects.save_analysis_prompt(job.id, analysis_prompt)
@@ -89,9 +81,7 @@ def analyze_scraped_data(self, job_id: str):
             google_api_key=settings.GOOGLE_API_KEY,
         )
 
-        structured_model = model.with_structured_output(
-            SEOReportSchema, method="json_mode"
-        )
+        structured_model = model.with_structured_output(SEOReportSchema, method="json_mode")
         messages = [
             SystemMessage(content=gemini_prompt.build("SYSTEM")),
             HumanMessage(content=analysis_prompt),
@@ -110,9 +100,7 @@ def analyze_scraped_data(self, job_id: str):
             },
             "message": "ScrapingJob Analysis has been completed successfully",
         }
-        async_to_sync(channel_layer.group_send)(
-            f"user_{user.id}_jobs_status", event_data
-        )
+        async_to_sync(channel_layer.group_send)(f"user_{user.id}_jobs_status", event_data)
 
     except ScrapingJob.DoesNotExist:
         logger.error(f"No ScrapingJob found for given ID: {job_id}")
@@ -124,14 +112,10 @@ def analyze_scraped_data(self, job_id: str):
             },
             "message": "Analyzing ScrapingJob has been failed",
         }
-        async_to_sync(channel_layer.group_send)(
-            f"user_{user.id}_jobs_status", event_data
-        )
+        async_to_sync(channel_layer.group_send)(f"user_{user.id}_jobs_status", event_data)
 
     except ValidationError as e:
-        logger.error(
-            "SEO report's schema validation falied", extra={"errors": e.errors()}
-        )
+        logger.error("SEO report's schema validation falied", extra={"errors": e.errors()})
         event_data = {
             "type": "job_status_update",
             "data": {
@@ -140,9 +124,7 @@ def analyze_scraped_data(self, job_id: str):
             },
             "message": "Analyzing ScrapingJob has been failed",
         }
-        async_to_sync(channel_layer.group_send)(
-            f"user_{user.id}_jobs_status", event_data
-        )
+        async_to_sync(channel_layer.group_send)(f"user_{user.id}_jobs_status", event_data)
 
     except Exception as e:
         async_to_sync(ScrapingJob.objects.set_job_to_failed)(job_id, str(e))
@@ -157,6 +139,4 @@ def analyze_scraped_data(self, job_id: str):
             },
             "message": "Analyzing ScrapingJob has been failed",
         }
-        async_to_sync(channel_layer.group_send)(
-            f"user_{user.id}_jobs_status", event_data
-        )
+        async_to_sync(channel_layer.group_send)(f"user_{user.id}_jobs_status", event_data)

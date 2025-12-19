@@ -1,15 +1,12 @@
 # Python Imports
-from typing import Any, Optional, Self, List
+from typing import Any, List, Optional
 from uuid import uuid4
 
 # Django Imports
 from django.db import models
-from django.core.validators import MinLengthValidator
-from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
-
-# Third-Party Imports
-from pydantic import ValidationError
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.validators import MinLengthValidator
 
 # Project Imports
 from core.models import CreatedAtMixin
@@ -219,7 +216,8 @@ class ScrapingJobQuerySet(models.QuerySet):
 
         Returns:
             dict: A dictionary containing the following keys:
-                - "can_retry_analysis_only" (bool): True if both scraping data and analysis prompt exist.
+                - "can_retry_analysis_only" (bool): True if both scraping data and analysis
+                    prompt exist.
                 - "has_scraping_data" (bool): True if the job has scraping results.
                 - "has_analysis_prompt" (bool): True if the job has an analysis prompt.
         """
@@ -277,9 +275,7 @@ class ScrapingJobQuerySet(models.QuerySet):
         Returns:
             Optional[ScrapingJob]: The ScrapingJob instance if found, otherwise None.
         """
-        job: ScrapingJob = await self.filter(
-            snapshot_id=snapshot_id, user=user_id
-        ).afirst()
+        job: ScrapingJob = await self.filter(snapshot_id=snapshot_id, user=user_id).afirst()
         if job and job.seo_report:
             SEOReportSchema(**job.seo_report)
 
@@ -355,9 +351,7 @@ class ScrapingJob(CreatedAtMixin):
         help_text="BrightData scraping job's ID for tracking",
     )
 
-    status = models.CharField(
-        max_length=10, choices=ScrapingJobStatusChoices.choices, blank=True
-    )
+    status = models.CharField(max_length=10, choices=ScrapingJobStatusChoices.choices, blank=True)
 
     results = models.JSONField(
         encoder=DjangoJSONEncoder,
@@ -383,7 +377,5 @@ class ScrapingJob(CreatedAtMixin):
             models.Index(fields=["created_at"], name="scraping_job_created_at_idx"),
             models.Index(fields=["status"], name="scraping_job_statust_idx"),
             models.Index(fields=["user"], name="scraping_job_user_idx"),
-            models.Index(
-                fields=["user", "created_at"], name="scraping_job_user_created_idx"
-            ),
+            models.Index(fields=["user", "created_at"], name="scraping_job_user_created_idx"),
         ]

@@ -1,13 +1,13 @@
 # REST Framework Imports
-from rest_framework.request import Request
-from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.viewsets import ViewSet
 
 # Third-Party Imports
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from drf_spectacular.utils import extend_schema_view
 from sentry_sdk import set_tag
+from drf_spectacular.utils import extend_schema_view
 
 # Project Imports
 from core.responses import Response
@@ -15,7 +15,6 @@ from core.responses import Response
 # App Imports
 from .services import AuthService
 from .openapi import AuthViewSetSchema
-
 
 set_tag("feature", "authentication")
 

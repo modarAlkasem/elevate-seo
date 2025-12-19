@@ -1,9 +1,9 @@
 # Python Imports
-from typing import Any
 import logging
+from typing import Any
 
 # Django Imports
-from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.hashers import check_password, make_password
 from django.db.transaction import atomic
 from django.utils import timezone
 
@@ -14,15 +14,16 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 
-# App Imports
-from .models import User, Account
 from .constants import (
-    SignUpErrorCodeChoices,
     AccountProviderChoices,
     AccountTypeChoices,
-    SignInErrorCodeChoices,
     OAuthProviderChoices,
+    SignInErrorCodeChoices,
+    SignUpErrorCodeChoices,
 )
+
+# App Imports
+from .models import Account, User
 from .utils import validate_google_tokens
 
 logger = logging.Logger(__name__)
@@ -160,7 +161,7 @@ class SignInSerializer(serializers.Serializer):
 
         except (User.DoesNotExist, ValueError):
             logger.error(
-                f"Failed sign in attempt.",
+                "Failed sign in attempt.",
                 extra={
                     "email": attrs.get("email"),
                 },

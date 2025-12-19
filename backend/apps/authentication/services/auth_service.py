@@ -1,23 +1,23 @@
 # REST Framework Imports
-from rest_framework.request import Request
 from rest_framework import status
+from rest_framework.request import Request
 from rest_framework.serializers import ValidationError
-
-# Project Imports
-from core.responses import Response
 
 # Third Party Imports
 from rest_framework_simplejwt.tokens import RefreshToken
 
+# Project Imports
+from core.responses import Response
+
 # App Imports
 from ..serializers import (
-    SignInSocialModelSerializer,
-    SignUpModelSerializer,
     SignInSerializer,
+    SignInSocialModelSerializer,
     SignOutSerializer,
+    SignUpModelSerializer,
     UserModelSerializer,
 )
-from ..constants import SignUpErrorCodeChoices, SignInErrorCodeChoices
+from ..constants import SignInErrorCodeChoices, SignUpErrorCodeChoices
 
 
 class AuthService:

@@ -12,18 +12,19 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 # Python Imports
 import logging
-from pathlib import Path
-import sys
 import os
+import sys
 from datetime import timedelta
+from pathlib import Path
+
+import sentry_sdk
 
 # Third Party Imports
 from decouple import config
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
-from sentry_sdk.integrations.redis import RedisIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 # App Imports
 from .sentry import before_breadcrumb_filter, before_send_filter
@@ -63,7 +64,7 @@ sentry_sdk.init(
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",
     cast=lambda v: [s.strip() for s in v.split(",")],
-    default=["127.0.0.1", "localhost"],
+    default="127.0.0.1,localhost",
 )
 API_BASE_URL = config("API_BASE_URL", default="http://localhost:8080")
 
@@ -184,9 +185,7 @@ AUTH_USER_MODEL = "authentication.User"
 # Django REST Framework
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ["core.renderers.JSONRenderer"],
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication"
-    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework_simplejwt.authentication.JWTAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "UNAUTHENTICATED_USER": None,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -219,7 +218,10 @@ CHANNEL_LAYERS = {
 # Celery
 CELERY_BROKER_URL = config(
     "CELERY_BROKER_URL",
-    default=f"amqp://{config("RABBITMQ_DEFAULT_USER")}:{config("RABBITMQ_DEFAULT_USER")}@rabbitmq:5672/",
+    default=f"""
+    amqp://{config("RABBITMQ_DEFAULT_USER")}:
+    {config("RABBITMQ_DEFAULT_USER")}@rabbitmq:5672/
+    """,
 )
 CELERY_RESULT_BACKEND = config(
     "CELERY_BROKER_URL",
@@ -242,7 +244,10 @@ OAUTH_PROVIDERS = {
 # DRF Spectacular
 SPECTACULAR_SETTINGS = {
     "Title": "ElevateSEO",
-    "DESCRIPTION": "🧠 AI-powered SEO optimization platform that analyzes competitors, keywords, and site health with actionable insights.",
+    "DESCRIPTION": """
+    🧠 AI-powered SEO optimization platform that analyzes competitors,
+     keywords, and site health with actionable insights.
+     """,
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
@@ -252,7 +257,7 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOWED_ORIGINS = config(
     "CORS_ALLOWED_ORIGINS",
     cast=lambda v: [s.strip() for s in v.split(",")],
-    default=["http://localhost:3000", "http://127.0.0.1:3000"],
+    default="http://localhost:3000,http://127.0.0.1:3000",
 )
 
 
@@ -264,7 +269,5 @@ BRIGHTDATA_DATASET_ID = config("BRIGHTDATA_DATASET_ID", cast=str)
 
 
 # GOOGLE
-GOOGLE_GEMINI_MODEL_IDENTIFIER = config(
-    "GOOGLE_GEMINI_MODEL_IDENTIFIER", default="gemini-2.5-pro"
-)
+GOOGLE_GEMINI_MODEL_IDENTIFIER = config("GOOGLE_GEMINI_MODEL_IDENTIFIER", default="gemini-2.5-pro")
 GOOGLE_API_KEY = config("GOOGLE_API_KEY")
