@@ -64,7 +64,7 @@ sentry_sdk.init(
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",
     cast=lambda v: [s.strip() for s in v.split(",")],
-    default=["127.0.0.1", "localhost"],
+    default="127.0.0.1,localhost",
 )
 API_BASE_URL = config("API_BASE_URL", default="http://localhost:8080")
 
