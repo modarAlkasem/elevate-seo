@@ -107,7 +107,7 @@ jobs:
             - name: Run linting
               run: |
                   pip install flake8 black isort
-                  flake8 backend/apps/ backend/config/ --max-line-height=100 --exclude=migrations
+                  flake8 backend/apps/ backend/config/ --max-line-length=100 --exclude=migrations
                   black --check backend/apps/ backend/config/
                   isort --check backend/apps/ backend/config/
 
