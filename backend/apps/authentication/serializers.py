@@ -160,7 +160,7 @@ class SignInSerializer(serializers.Serializer):
 
         except (User.DoesNotExist, ValueError):
             logger.error(
-                f"Failed sign in attempt.",
+                "Failed sign in attempt.",
                 extra={
                     "email": attrs.get("email"),
                 },

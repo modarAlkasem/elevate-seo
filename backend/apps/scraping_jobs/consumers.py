@@ -9,7 +9,6 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from authentication.models import User
 
 # App Imports
-from .models import ScrapingJob
 from .constants import ScrapingJobStatusChoices
 
 

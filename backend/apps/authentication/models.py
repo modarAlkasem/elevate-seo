@@ -1,5 +1,4 @@
 # Python Imports
-from pickle import TRUE
 from uuid import uuid4
 
 # Django Imports
@@ -20,14 +19,21 @@ class User(TimeStampMixin):
         "email verified",
         blank=True,
         default=True,
-        help_text="Specify whether user's email is confirmed or not. Note: for now it defaults to True after until User Email Confirmation mechanism being applied.",
+        help_text="""
+        Specify whether user's email is confirmed or not.
+        Note: for now it defaults to True after until
+        User Email Confirmation mechanism being applied.
+        """,
     )
     last_signed_in = models.DateTimeField("last signed in", null=True)
     is_active = models.BooleanField(
         "is active",
         blank=True,
         default=True,
-        help_text="Define the activity status of user, set it to 'False' to disable user instead of deleting it.",
+        help_text="""
+        Define the activity status of user,
+        set it to 'False' to disable user instead of deleting it.
+        """,
     )
     avatar = models.CharField(
         "avatar",
@@ -41,12 +47,18 @@ class User(TimeStampMixin):
 
     @property
     def is_anonymous(self):
-        """Implemented since used by Django Simple JWT package but it'wont has any effect on authenticated process"""
+        """
+        Implemented since used by Django Simple JWT package but
+        it'wont has any effect on authenticated process
+        """
         return False
 
     @property
     def is_authenticated(self):
-        """Implemented since used by Django Simple JWT package but it'wont has any effect on authenticated process"""
+        """
+        Implemented since used by Django Simple JWT package but
+        it'wont has any effect on authenticated process
+        """
         return True
 
 
@@ -61,9 +73,7 @@ class Account(CreatedAtMixin):
     )
 
     type = models.CharField("type", max_length=15, choices=AccountTypeChoices.choices)
-    provider = models.CharField(
-        "provider", max_length=15, choices=AccountProviderChoices.choices
-    )
+    provider = models.CharField("provider", max_length=15, choices=AccountProviderChoices.choices)
     provider_account_id = models.CharField("provider account id", max_length=255)
     token_type = models.CharField("token type", max_length=10, blank=True, null=True)
     scope = models.TextField("scope", blank=True, null=True)

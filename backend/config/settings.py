@@ -184,9 +184,7 @@ AUTH_USER_MODEL = "authentication.User"
 # Django REST Framework
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ["core.renderers.JSONRenderer"],
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication"
-    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework_simplejwt.authentication.JWTAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "UNAUTHENTICATED_USER": None,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -219,7 +217,10 @@ CHANNEL_LAYERS = {
 # Celery
 CELERY_BROKER_URL = config(
     "CELERY_BROKER_URL",
-    default=f"amqp://{config("RABBITMQ_DEFAULT_USER")}:{config("RABBITMQ_DEFAULT_USER")}@rabbitmq:5672/",
+    default=f"""
+    amqp://{config("RABBITMQ_DEFAULT_USER")}:
+    {config("RABBITMQ_DEFAULT_USER")}@rabbitmq:5672/
+    """,
 )
 CELERY_RESULT_BACKEND = config(
     "CELERY_BROKER_URL",
@@ -242,7 +243,10 @@ OAUTH_PROVIDERS = {
 # DRF Spectacular
 SPECTACULAR_SETTINGS = {
     "Title": "ElevateSEO",
-    "DESCRIPTION": "🧠 AI-powered SEO optimization platform that analyzes competitors, keywords, and site health with actionable insights.",
+    "DESCRIPTION": """
+    🧠 AI-powered SEO optimization platform that analyzes competitors,
+     keywords, and site health with actionable insights.
+     """,
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
@@ -264,7 +268,5 @@ BRIGHTDATA_DATASET_ID = config("BRIGHTDATA_DATASET_ID", cast=str)
 
 
 # GOOGLE
-GOOGLE_GEMINI_MODEL_IDENTIFIER = config(
-    "GOOGLE_GEMINI_MODEL_IDENTIFIER", default="gemini-2.5-pro"
-)
+GOOGLE_GEMINI_MODEL_IDENTIFIER = config("GOOGLE_GEMINI_MODEL_IDENTIFIER", default="gemini-2.5-pro")
 GOOGLE_API_KEY = config("GOOGLE_API_KEY")

@@ -7,6 +7,7 @@ For more information on this file, see
 https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
 """
 
+# flake8: noqa: E402
 # Python Imports
 import os
 import sys

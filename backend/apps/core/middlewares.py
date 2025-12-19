@@ -1,5 +1,4 @@
 # Python Imports
-from typing import Optional
 from urllib.parse import parse_qs
 
 # Third-Party Imports

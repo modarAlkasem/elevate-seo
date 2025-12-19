@@ -1,3 +1,5 @@
+# flake8: noqa: E402
+
 from .base import BasePrompt
 
 

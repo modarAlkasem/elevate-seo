@@ -19,9 +19,7 @@ def before_breadcrumb_filter(crumb: dict, hint: dict) -> Optional[dict]:
     """Filter breadcrumb before send it to Sentry"""
 
     # Prevent log exernal API calls with query params holding tokens
-    if crumb.get("category") == "httplib" and "token=" in crumb.get("data", {}).get(
-        "url", ""
-    ):
+    if crumb.get("category") == "httplib" and "token=" in crumb.get("data", {}).get("url", ""):
         return None
 
     return crumb

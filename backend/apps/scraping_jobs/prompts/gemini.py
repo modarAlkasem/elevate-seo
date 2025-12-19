@@ -1,3 +1,5 @@
+# flake8: noqa: E402
+
 # Python Imports
 from typing import Literal, Optional
 

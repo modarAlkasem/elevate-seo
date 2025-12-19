@@ -2,13 +2,11 @@
 from typing import Callable
 
 # REST Framework Imports
-from rest_framework.request import Request
-from rest_framework import serializers, status
+
+from rest_framework import status
 
 # Third Party Imports
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
-from drf_spectacular.types import OpenApiTypes
-from urllib3 import response
+from drf_spectacular.utils import extend_schema, OpenApiExample
 
 # App Imports
 from authentication.serializers import (

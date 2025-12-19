@@ -19,7 +19,7 @@ from authentication.models import User
 
 
 # App Imports
-from ..serializers import ScrapingJobModelSerializer, ListScrapingJobModelSerializer
+from ..serializers import ScrapingJobModelSerializer
 from ..models import ScrapingJob
 from ..prompts.perplexity import perplexity_prompt as perplexity_prompt_obj
 from ..tasks import analyze_scraped_data
@@ -50,8 +50,7 @@ class ScrapingJobService:
 
             if (
                 not bt_scraping_result.get("success")
-                and bt_scraping_result.get("code")
-                == status.HTTP_500_INTERNAL_SERVER_ERROR
+                and bt_scraping_result.get("code") == status.HTTP_500_INTERNAL_SERVER_ERROR
             ):
                 return (
                     bt_scraping_result.get("message"),
@@ -74,9 +73,7 @@ class ScrapingJobService:
     async def start_brightdata_scraping(
         job: ScrapingJob, original_prompt: Optional[str], country_code: Optional[str]
     ) -> StartBrightDataScrapingReturn:
-        webhook_url = (
-            f"{settings.API_BASE_URL}{settings.BRIGHTDATA_WEBHOOK_PATH}?job-id={job.id}"
-        )
+        webhook_url = f"{settings.API_BASE_URL}{settings.BRIGHTDATA_WEBHOOK_PATH}?job-id={job.id}"
         encoded_webhook_url = quote(webhook_url, safe="")
 
         url = (
@@ -125,9 +122,7 @@ class ScrapingJobService:
                     error_text = response.text or ""
                     error_msg = f"HTTP {response.status_code}: {error_text}"
 
-                    logger.error(
-                        f"BrightData API call's error for job {job.id}: {error_text}"
-                    )
+                    logger.error(f"BrightData API call's error for job {job.id}: {error_text}")
 
                     await ScrapingJob.objects.set_job_to_failed(job.id, error_msg)
 
@@ -146,9 +141,7 @@ class ScrapingJobService:
 
         except httpx.TimeoutException as e:
             error_msg = str(e)
-            logger.error(
-                f"BrightData API call timeout error for job {job.id}: {error_msg}"
-            )
+            logger.error(f"BrightData API call timeout error for job {job.id}: {error_msg}")
 
             await ScrapingJob.objects.set_job_to_failed(job.id, error_msg)
 
@@ -161,7 +154,9 @@ class ScrapingJobService:
         except Exception as e:
             error_msg = str(e)
             logger.error(
-                f"Error happened while updating job status to failed (Job ID:  {job.id}): {error_msg}"
+                f"""
+                Error happened while updating job status to failed (Job ID:  {job.id}): {error_msg}
+                """
             )
 
             return {
@@ -178,9 +173,7 @@ class ScrapingJobService:
         country_code: Optional["str"] = "US",
     ):
 
-        scraping_job = await ScrapingJob.objects.acreate(
-            user=user, original_prompt=original_prompt
-        )
+        scraping_job = await ScrapingJob.objects.acreate(user=user, original_prompt=original_prompt)
 
         bt_scraping_result = await cls.start_brightdata_scraping(
             scraping_job, original_prompt, country_code
@@ -198,9 +191,7 @@ class ScrapingJobService:
 
         snapshot_id = bt_scraping_result.get("snapshot_id")
 
-        await ScrapingJob.objects.update_job_with_snapshot_id(
-            scraping_job.id, snapshot_id
-        )
+        await ScrapingJob.objects.update_job_with_snapshot_id(scraping_job.id, snapshot_id)
 
         await sync_to_async(scraping_job.refresh_from_db)(fields=["snapshot_id"])
         response_data = await ScrapingJobModelSerializer(instance=scraping_job).adata
@@ -252,13 +243,14 @@ class ScrapingJobService:
     ) -> Tuple[Optional[ScrapingJob], str, int]:
 
         try:
-            job = await ScrapingJob.objects.aget_job_by_snapshot_id(
-                user_id, snapshot_id
-            )
+            job = await ScrapingJob.objects.aget_job_by_snapshot_id(user_id, snapshot_id)
 
             if not job:
                 logger.error(
-                    f"No scraping job found with given snapshot ID ({snapshot_id}) for user ({user_id})",
+                    f"""
+                    No scraping job found with given snapshot ID ({snapshot_id})
+                    for user ({user_id})
+                    """,
                 )
 
                 return (
@@ -275,7 +267,10 @@ class ScrapingJobService:
 
         except ValidationError as e:
             logger.error(
-                f"SEO report validation error when fetching job with given snapshot ID ({snapshot_id}) for user ({user_id})",
+                f"""
+                SEO report validation error when fetching job
+                with given snapshot ID ({snapshot_id}) for user ({user_id})
+                """,
                 extra={"validation_errors": e.errors()},
             )
 

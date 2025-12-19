@@ -37,12 +37,10 @@ class ScrapingJobViewSet(ViewSet):
             if existing_job_id:
                 ScrapingJobService.retry_job(job_id=existing_job_id, user=user)
             else:
-                response_data, status_text, status_code = (
-                    await ScrapingJobService.create_new_job(
-                        user,
-                        validated_data.get("prompt"),
-                        validated_data.get("country_code"),
-                    )
+                response_data, status_text, status_code = await ScrapingJobService.create_new_job(
+                    user,
+                    validated_data.get("prompt"),
+                    validated_data.get("country_code"),
                 )
         except ValidationError as e:
             response_data, status_text, status_code = (
@@ -51,9 +49,7 @@ class ScrapingJobViewSet(ViewSet):
                 status.HTTP_400_BAD_REQUEST,
             )
 
-        return Response(
-            data=response_data, status_text=status_text, status_code=status_code
-        )
+        return Response(data=response_data, status_text=status_text, status_code=status_code)
 
     async def list(self, request: Request) -> Response:
         user = request.user
@@ -61,23 +57,15 @@ class ScrapingJobViewSet(ViewSet):
         response_data = []
 
         if jobs:
-            response_data = await ListScrapingJobModelSerializer(
-                instance=jobs, many=True
-            ).adata
+            response_data = await ListScrapingJobModelSerializer(instance=jobs, many=True).adata
 
-        return Response(
-            data=response_data, status_text=status_text, status_code=status_code
-        )
+        return Response(data=response_data, status_text=status_text, status_code=status_code)
 
-    @action(
-        methods=["GET"], detail=False, url_path=r"by-snapshot/(?P<snapshot_id>[^/.]+)"
-    )
-    async def retrieve_by_snapshot_id(
-        self, request: Request, snapshot_id: str
-    ) -> Response:
+    @action(methods=["GET"], detail=False, url_path=r"by-snapshot/(?P<snapshot_id>[^/.]+)")
+    async def retrieve_by_snapshot_id(self, request: Request, snapshot_id: str) -> Response:
         user = request.user
-        job, status_text, status_code = (
-            await ScrapingJobService.retrieve_by_snapshot_id(user.id, snapshot_id)
+        job, status_text, status_code = await ScrapingJobService.retrieve_by_snapshot_id(
+            user.id, snapshot_id
         )
 
         if job:
@@ -99,10 +87,6 @@ class BrightDataWebhookAPIView(APIView):
 
     @csrf_exempt
     async def post(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
-        response_data, status_text, status_code = await BrightDataWebhookService.handle(
-            request
-        )
+        response_data, status_text, status_code = await BrightDataWebhookService.handle(request)
 
-        return Response(
-            data=response_data, status_text=status_text, status_code=status_code
-        )
+        return Response(data=response_data, status_text=status_text, status_code=status_code)
