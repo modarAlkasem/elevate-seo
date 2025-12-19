@@ -46,6 +46,7 @@ jobs:
             REDIS_HOST: ${{vars.REDIS_HOST}}
             REDIS_PORT: ${{vars.REDIS_PORT}}
             SENTRY_DSN: ${{secrets.SENTRY_DSN}}
+            GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
 
         services:
             db:
@@ -124,7 +125,6 @@ jobs:
               env:
                   CELERY_BROKER_URL: ${{vars.CELERY_BROKER_URL}}
                   CELERY_RESULT_BACKEND: ${{vars.CELERY_RESULT_BACKEND}}
-                  GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
                   GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
                   BRIGHTDATA_API_KEY: ${{secrets.BRIGHTDATA_API_KEY}}
                   BRIGHTDATA_WEBHOOK_SECRET: ${{secrets.  BRIGHTDATA_WEBHOOK_SECRET}}
