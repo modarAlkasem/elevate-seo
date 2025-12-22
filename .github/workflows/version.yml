@@ -1,0 +1,41 @@
+name: Generate Semantic Version
+
+on:
+    workflow_call:
+        outputs:
+            version:
+                description: "Semnatic version for Docker image"
+                value: ${{jobs.generate-version.outputs.version}}
+
+            short_sha:
+                description: "Short SHA commit"
+                value: ${{jobs.generate-version.outputs.short_sha}}
+
+jobs:
+    generate-version:
+        name: Generate Version
+        runs-on: ubuntu-latest
+        outputs:
+            version: ${{steps.version.outputs.version}}
+            short_sha: ${{steps.short_sha.outputs.sha}}
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Get short SHA
+              id: short_sha
+              run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+            - name: Install Git Version
+              uses: gittools/actions/gitversion/setup@v0.10.2
+              with:
+                  versionSpec: "5.x"
+
+            - name: Determine version
+              uses: gittools/actions/gitversion/execute@v0.10.2
+              with:
+                  useConfigFile: true
+                  configFilePath: GitVersion.yml
