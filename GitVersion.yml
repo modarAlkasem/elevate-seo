@@ -1,0 +1,29 @@
+mode: ContinuousDeployment
+branches:
+  main:
+    tag: ""
+    increment: Patch
+    regex: ^master$|^main$
+  
+  develop:
+    tag: beta
+    increment: Minor
+
+  
+  feature:
+    tag: alpha
+    increment: Minor
+    regex: ^features?[/-]
+  
+  bugfix:
+    tag: bugfix
+    increment: Patch
+    regex: ^bugfix[/-]
+  
+  hotfix:
+    tag: hotfix
+    increment: Patch
+    regex: ^hotfix[/-]
+
+ignore:
+  sha: []
